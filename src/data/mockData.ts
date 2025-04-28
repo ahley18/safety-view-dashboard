@@ -129,7 +129,7 @@ export interface Developer {
 export const developers: Developer[] = [
   {
     id: '1',
-    name: 'Alex Morgan',
+    name: 'Clarence Jay Fetalino',
     role: 'Lead Developer',
     image: 'https://images.unsplash.com/photo-1586297135537-94bc9ba060aa?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&auto=format&fit=crop&w=256&q=80',
     bio: 'Alex leads the technical development of our PPE monitoring system, with expertise in computer vision and real-time data processing.',
@@ -141,7 +141,7 @@ export const developers: Developer[] = [
   },
   {
     id: '2',
-    name: 'Sarah Chen',
+    name: 'Marie Antonette Ampo',
     role: 'Backend Developer',
     image: 'https://images.unsplash.com/photo-1581091226825-a6a2a5aee158?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&auto=format&fit=crop&w=256&q=80',
     bio: 'Sarah specializes in database architecture and Firebase integration, ensuring our data storage is optimized and secure.',
@@ -152,7 +152,7 @@ export const developers: Developer[] = [
   },
   {
     id: '3',
-    name: 'Jamal Williams',
+    name: 'Abegail Andres',
     role: 'Frontend Developer',
     image: 'https://images.unsplash.com/photo-1581092795360-fd1ca04f0952?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&auto=format&fit=crop&w=256&q=80',
     bio: 'Jamal creates intuitive user interfaces that help safety managers quickly assess PPE compliance across their work sites.',
@@ -163,7 +163,7 @@ export const developers: Developer[] = [
   },
   {
     id: '4',
-    name: 'Elena Rodriguez',
+    name: 'Princess Bacay',
     role: 'Computer Vision Specialist',
     image: 'https://images.unsplash.com/photo-1487412720507-e7ab37603c6f?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&auto=format&fit=crop&w=256&q=80',
     bio: 'Elena develops the advanced algorithms that detect PPE equipment with high accuracy in various lighting and environmental conditions.',
@@ -175,7 +175,7 @@ export const developers: Developer[] = [
   },
   {
     id: '5',
-    name: 'Michael Kim',
+    name: 'Eunice Oronce',
     role: 'DevOps Engineer',
     image: 'https://images.unsplash.com/photo-1486312338219-ce68d2c6f44d?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&auto=format&fit=crop&w=256&q=80',
     bio: 'Michael ensures our monitoring system is reliable and scalable, with minimal downtime and rapid deployment of new features.',
@@ -184,3 +184,4 @@ export const developers: Developer[] = [
     },
   },
 ];
+
