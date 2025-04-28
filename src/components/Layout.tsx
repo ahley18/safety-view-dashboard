@@ -1,0 +1,30 @@
+
+import React, { useState } from 'react';
+import Sidebar from './Sidebar';
+import DashboardView from './dashboard/DashboardView';
+import DevelopersView from './developers/DevelopersView';
+
+type Tab = 'dashboard' | 'developers';
+
+const Layout: React.FC = () => {
+  const [activeTab, setActiveTab] = useState<Tab>('dashboard');
+
+  return (
+    <div className="flex flex-col md:flex-row min-h-screen bg-gray-50">
+      <Sidebar activeTab={activeTab} setActiveTab={setActiveTab} />
+      <main className="flex-1 p-4 md:p-6 overflow-y-auto">
+        {activeTab === 'dashboard' ? (
+          <div className="animate-fade-in">
+            <DashboardView />
+          </div>
+        ) : (
+          <div className="animate-fade-in">
+            <DevelopersView />
+          </div>
+        )}
+      </main>
+    </div>
+  );
+};
+
+export default Layout;
