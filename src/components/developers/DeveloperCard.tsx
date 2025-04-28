@@ -2,24 +2,33 @@
 import React from 'react';
 import { Developer } from '../../data/mockData';
 import { Facebook, Instagram, Linkedin } from 'lucide-react';
+import { Avatar, AvatarImage, AvatarFallback } from '../ui/avatar';
 
 interface DeveloperCardProps {
   developer: Developer;
 }
 
 const DeveloperCard: React.FC<DeveloperCardProps> = ({ developer }) => {
+  const initials = developer.name
+    .split(' ')
+    .map((n) => n[0])
+    .join('')
+    .substring(0, 2)
+    .toUpperCase();
+
   return (
     <div className="bg-white rounded-xl shadow-sm border border-gray-100 overflow-hidden hover:shadow-md transition-all">
       <div className="p-6">
         <div className="flex items-center gap-5">
           <div className="flex-shrink-0">
-            <div className="h-20 w-20 rounded-full overflow-hidden border-2 border-primary/20">
-              <img
-                src={developer.image}
+            <Avatar className="h-20 w-20 border-2 border-primary/20">
+              <AvatarImage 
+                src={developer.image} 
                 alt={developer.name}
-                className="h-full w-full object-cover"
+                className="object-cover"
               />
-            </div>
+              <AvatarFallback>{initials}</AvatarFallback>
+            </Avatar>
           </div>
           <div>
             <h3 className="text-lg font-semibold text-gray-900">{developer.name}</h3>
