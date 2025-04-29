@@ -1,4 +1,3 @@
-
 import React, { useState, useEffect } from 'react';
 import { Search } from 'lucide-react';
 import { initializeApp } from 'firebase/app';
@@ -115,10 +114,37 @@ const DashboardView: React.FC = () => {
     return matchesSearch && record['Door-Status'] === "0";
   });
   
-  // Format timestamp to readable date
+  // Format timestamp to readable date and time
   const formatTimestamp = (timestamp: number): string => {
-    const date = new Date(timestamp);
-    return date.toLocaleString();
+    // Ensure we're working with a valid number
+    if (!timestamp || isNaN(timestamp)) {
+      return 'Invalid Date';
+    }
+    
+    try {
+      // Check if timestamp needs conversion from seconds to milliseconds
+      // Firebase sometimes stores timestamps as seconds since epoch
+      const timestampInMs = timestamp > 1000000000000 ? timestamp : timestamp * 1000;
+      const date = new Date(timestampInMs);
+      
+      if (isNaN(date.getTime())) {
+        return 'Invalid Date';
+      }
+      
+      // Format date: YYYY-MM-DD HH:MM:SS
+      return date.toLocaleString('en-US', {
+        year: 'numeric',
+        month: '2-digit',
+        day: '2-digit',
+        hour: '2-digit',
+        minute: '2-digit',
+        second: '2-digit',
+        hour12: false
+      });
+    } catch (error) {
+      console.error("Error formatting timestamp:", error, "Timestamp value:", timestamp);
+      return 'Error with Date';
+    }
   };
 
   return (
