@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { Search } from 'lucide-react';
 import { initializeApp } from 'firebase/app';
-import { getDatabase, ref, query, orderByChild, limitToLast, onValue, off, Database } from 'firebase/database';
+import { getDatabase, ref, onValue, off, Database } from 'firebase/database';
 import { Alert, AlertTitle, AlertDescription } from '@/components/ui/alert';
 import { Card, CardHeader, CardTitle, CardContent } from '@/components/ui/card';
 
@@ -18,10 +18,10 @@ const app = initializeApp(firebaseConfig);
 // Interface for the DWS data structure
 interface DWSEntry {
   id: string;
-  timestamp: number;
+  timestamp: string;
   'ID Number': string;
-  'Door-Status': string;
-  'Person-Nearby': string;
+  'Door-Status'?: string;
+  'Person-Nearby'?: string | number;
 }
 
 const DashboardView: React.FC = () => {
@@ -50,22 +50,41 @@ const DashboardView: React.FC = () => {
 
     setLoading(true);
     const dwsRef = ref(database, 'DWS-In-Out');
-    const recentDataQuery = query(dwsRef, orderByChild('timestamp'), limitToLast(10));
 
     try {
       const listener = onValue(
-        recentDataQuery,
+        dwsRef,
         (snapshot) => {
           if (snapshot.exists()) {
             const data = snapshot.val();
-            const dataArray = Object.keys(data).map((key) => ({
-              id: key,
-              ...data[key],
-            }));
+            
+            // Extract door status and person nearby from root level
+            const doorStatus = data['Door-Status'] || "0";
+            const personNearby = String(data['Person-Nearby'] || "0");
+            
+            // Filter out non-timestamp entries (like Door-Status and Person-Nearby)
+            const entries = Object.entries(data)
+              .filter(([key, value]) => 
+                key !== 'Door-Status' && 
+                key !== 'Person-Nearby' && 
+                typeof value === 'object'
+              )
+              .map(([key, value]: [string, any]) => ({
+                id: key,
+                timestamp: key,
+                'ID Number': value['ID Number'] || 'Unknown',
+                'Door-Status': doorStatus,
+                'Person-Nearby': personNearby
+              }));
             
             // Sort by timestamp in descending order (newest first)
-            const sortedData = dataArray.sort((a, b) => b.timestamp - a.timestamp);
-            setDwsData(sortedData);
+            const sortedData = entries.sort((a, b) => 
+              new Date(b.timestamp).getTime() - new Date(a.timestamp).getTime()
+            );
+            
+            // Take only the latest 10 entries
+            const latestEntries = sortedData.slice(0, 10);
+            setDwsData(latestEntries);
           } else {
             setDwsData([]);
           }
@@ -81,7 +100,7 @@ const DashboardView: React.FC = () => {
 
       // Clean up the listener on component unmount
       return () => {
-        off(recentDataQuery, 'value', listener);
+        off(dwsRef, 'value', listener);
       };
     } catch (err) {
       console.error("Firebase query error:", err);
@@ -115,32 +134,15 @@ const DashboardView: React.FC = () => {
   });
   
   // Format timestamp to readable date and time
-  const formatTimestamp = (timestamp: number): string => {
-    // Ensure we're working with a valid number
-    if (!timestamp || isNaN(timestamp)) {
+  const formatTimestamp = (timestamp: string): string => {
+    if (!timestamp) {
       return 'Invalid Date';
     }
     
     try {
-      // Check if timestamp needs conversion from seconds to milliseconds
-      // Firebase sometimes stores timestamps as seconds since epoch
-      const timestampInMs = timestamp > 1000000000000 ? timestamp : timestamp * 1000;
-      const date = new Date(timestampInMs);
-      
-      if (isNaN(date.getTime())) {
-        return 'Invalid Date';
-      }
-      
-      // Format date: YYYY-MM-DD HH:MM:SS
-      return date.toLocaleString('en-US', {
-        year: 'numeric',
-        month: '2-digit',
-        day: '2-digit',
-        hour: '2-digit',
-        minute: '2-digit',
-        second: '2-digit',
-        hour12: false
-      });
+      // The timestamp is already in a readable format like "2025-04-26 01:43:56"
+      // Just return it directly
+      return timestamp;
     } catch (error) {
       console.error("Error formatting timestamp:", error, "Timestamp value:", timestamp);
       return 'Error with Date';
