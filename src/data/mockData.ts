@@ -1,3 +1,4 @@
+
 // Mock data for PPE monitoring
 export interface PPERecord {
   id: string;
@@ -130,7 +131,7 @@ export const developers: Developer[] = [
     id: '1',
     name: 'Clarence Jay Fetalino',
     role: 'Lead Developer',
-    image: '/lovable-uploads/1ad02453-50d8-459e-a41d-c8dbf60bd765.png',
+    image: '/lovable-uploads/8e145341-18e0-4291-ad55-e4b7fcfabbf0.png',
     bio: 'Alex leads the technical development of our PPE monitoring system, with expertise in computer vision and real-time data processing.',
     socialLinks: {
       facebook: 'https://facebook.com',
