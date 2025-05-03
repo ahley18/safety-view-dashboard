@@ -28,7 +28,17 @@ const DeveloperCard: React.FC<DeveloperCardProps> = ({ developer }) => {
                 alt={developer.name}
                 className="object-cover"
               />
-              <AvatarFallback>{initials}</AvatarFallback>
+              {developer.name === 'Clarence Jay Fetalino' ? (
+                <AvatarFallback>
+                  <img 
+                    src="/lovable-uploads/c89ed7bd-531b-48a6-9547-2372db63fbf4.png" 
+                    alt="Clarence Jay Fetalino" 
+                    className="h-full w-full object-cover"
+                  />
+                </AvatarFallback>
+              ) : (
+                <AvatarFallback>{initials}</AvatarFallback>
+              )}
             </Avatar>
           </div>
           <div>
