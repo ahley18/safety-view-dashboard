@@ -16,12 +16,7 @@ const DeveloperCard: React.FC<DeveloperCardProps> = ({ developer }) => {
     .substring(0, 2)
     .toUpperCase();
     
-  // Special case for Clarence Jay Fetalino
-  const isClareceJay = developer.name === "Clarence Jay Fetalino";
-  const imagePath = isClareceJay 
-    ? "/lovable-uploads/62d9fee5-237c-4733-abca-fa7c90d4551a.png"
-    : developer.image;
-
+  // We no longer need the special case for Clarence as we're using the new image directly from mockData
   return (
     <div className="bg-white rounded-xl shadow-sm border border-gray-100 overflow-hidden hover:shadow-md transition-all">
       <div className="p-6">
@@ -29,7 +24,7 @@ const DeveloperCard: React.FC<DeveloperCardProps> = ({ developer }) => {
           <div className="flex-shrink-0">
             <Avatar className="h-20 w-20 border-2 border-primary/20">
               <AvatarImage 
-                src={imagePath} 
+                src={developer.image} 
                 alt={developer.name}
                 className="object-cover"
               />
