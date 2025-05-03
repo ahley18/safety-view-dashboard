@@ -143,7 +143,7 @@ export const developers: Developer[] = [
     id: '2',
     name: 'Marie Antonette Ampo',
     role: 'Backend Developer',
-    image: '/lovable-uploads/1ad02453-50d8-459e-a41d-c8dbf60bd765.png',
+    image: '/lovable-uploads/9f0d14f1-52dc-4261-9314-f53d913e9c74.png',
     bio: 'Sarah specializes in database architecture and Firebase integration, ensuring our data storage is optimized and secure.',
     socialLinks: {
       facebook: 'https://facebook.com',
@@ -154,7 +154,7 @@ export const developers: Developer[] = [
     id: '3',
     name: 'Abegail Andres',
     role: 'Frontend Developer',
-    image: '/lovable-uploads/1ad02453-50d8-459e-a41d-c8dbf60bd765.png',
+    image: '/lovable-uploads/9f0d14f1-52dc-4261-9314-f53d913e9c74.png',
     bio: 'Jamal creates intuitive user interfaces that help safety managers quickly assess PPE compliance across their work sites.',
     socialLinks: {
       instagram: 'https://instagram.com',
@@ -165,7 +165,7 @@ export const developers: Developer[] = [
     id: '4',
     name: 'Princess Bacay',
     role: 'Computer Vision Specialist',
-    image: '/lovable-uploads/1ad02453-50d8-459e-a41d-c8dbf60bd765.png',
+    image: '/lovable-uploads/9f0d14f1-52dc-4261-9314-f53d913e9c74.png',
     bio: 'Elena develops the advanced algorithms that detect PPE equipment with high accuracy in various lighting and environmental conditions.',
     socialLinks: {
       facebook: 'https://facebook.com',
@@ -177,7 +177,7 @@ export const developers: Developer[] = [
     id: '5',
     name: 'Eunice Oronce',
     role: 'DevOps Engineer',
-    image: '/lovable-uploads/1ad02453-50d8-459e-a41d-c8dbf60bd765.png',
+    image: '/lovable-uploads/9f0d14f1-52dc-4261-9314-f53d913e9c74.png',
     bio: 'Michael ensures our monitoring system is reliable and scalable, with minimal downtime and rapid deployment of new features.',
     socialLinks: {
       linkedin: 'https://linkedin.com',
