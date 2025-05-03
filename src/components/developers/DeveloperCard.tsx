@@ -1,44 +1,25 @@
-
 import React from 'react';
 import { Developer } from '../../data/mockData';
 import { Facebook, Instagram, Linkedin } from 'lucide-react';
 import { Avatar, AvatarImage, AvatarFallback } from '../ui/avatar';
-
 interface DeveloperCardProps {
   developer: Developer;
 }
+const DeveloperCard: React.FC<DeveloperCardProps> = ({
+  developer
+}) => {
+  const initials = developer.name.split(' ').map(n => n[0]).join('').substring(0, 2).toUpperCase();
 
-const DeveloperCard: React.FC<DeveloperCardProps> = ({ developer }) => {
-  const initials = developer.name
-    .split(' ')
-    .map((n) => n[0])
-    .join('')
-    .substring(0, 2)
-    .toUpperCase();
-    
   // We no longer need the special case for Clarence as we're using the new image directly from mockData
-  return (
-    <div className="bg-white rounded-xl shadow-sm border border-gray-100 overflow-hidden hover:shadow-md transition-all">
+  return <div className="bg-white rounded-xl shadow-sm border border-gray-100 overflow-hidden hover:shadow-md transition-all">
       <div className="p-6">
         <div className="flex items-center gap-5">
           <div className="flex-shrink-0">
             <Avatar className="h-20 w-20 border-2 border-primary/20">
-              <AvatarImage 
-                src={developer.image} 
-                alt={developer.name}
-                className="object-cover"
-              />
-              {developer.name === 'Clarence Jay Fetalino' ? (
-                <AvatarFallback>
-                  <img 
-                    src="/lovable-uploads/c89ed7bd-531b-48a6-9547-2372db63fbf4.png" 
-                    alt="Clarence Jay Fetalino" 
-                    className="h-full w-full object-cover"
-                  />
-                </AvatarFallback>
-              ) : (
-                <AvatarFallback>{initials}</AvatarFallback>
-              )}
+              <AvatarImage src={developer.image} alt={developer.name} className="object-cover" />
+              {developer.name === 'Clarence Jay Fetalino' ? <AvatarFallback>
+                  <img alt="Clarence Jay Fetalino" className="h-full w-full object-cover" src="/lovable-uploads/0ef4ecf0-4d64-46c2-b1f5-7207d4f93401.png" />
+                </AvatarFallback> : <AvatarFallback>{initials}</AvatarFallback>}
             </Avatar>
           </div>
           <div>
@@ -50,43 +31,17 @@ const DeveloperCard: React.FC<DeveloperCardProps> = ({ developer }) => {
         <p className="mt-4 text-gray-600 text-sm">{developer.bio}</p>
         
         <div className="mt-4 flex gap-3">
-          {developer.socialLinks.facebook && (
-            <a
-              href={developer.socialLinks.facebook}
-              target="_blank"
-              rel="noopener noreferrer"
-              className="text-gray-500 hover:text-blue-600 transition-colors"
-              aria-label="Facebook"
-            >
+          {developer.socialLinks.facebook && <a href={developer.socialLinks.facebook} target="_blank" rel="noopener noreferrer" className="text-gray-500 hover:text-blue-600 transition-colors" aria-label="Facebook">
               <Facebook size={18} />
-            </a>
-          )}
-          {developer.socialLinks.instagram && (
-            <a
-              href={developer.socialLinks.instagram}
-              target="_blank"
-              rel="noopener noreferrer"
-              className="text-gray-500 hover:text-pink-600 transition-colors"
-              aria-label="Instagram"
-            >
+            </a>}
+          {developer.socialLinks.instagram && <a href={developer.socialLinks.instagram} target="_blank" rel="noopener noreferrer" className="text-gray-500 hover:text-pink-600 transition-colors" aria-label="Instagram">
               <Instagram size={18} />
-            </a>
-          )}
-          {developer.socialLinks.linkedin && (
-            <a
-              href={developer.socialLinks.linkedin}
-              target="_blank"
-              rel="noopener noreferrer"
-              className="text-gray-500 hover:text-blue-800 transition-colors"
-              aria-label="LinkedIn"
-            >
+            </a>}
+          {developer.socialLinks.linkedin && <a href={developer.socialLinks.linkedin} target="_blank" rel="noopener noreferrer" className="text-gray-500 hover:text-blue-800 transition-colors" aria-label="LinkedIn">
               <Linkedin size={18} />
-            </a>
-          )}
+            </a>}
         </div>
       </div>
-    </div>
-  );
+    </div>;
 };
-
 export default DeveloperCard;
