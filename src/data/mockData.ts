@@ -1,4 +1,3 @@
-
 // Mock data for PPE monitoring
 export interface PPERecord {
   id: string;
@@ -134,9 +133,9 @@ export const developers: Developer[] = [
     image: '/lovable-uploads/8e145341-18e0-4291-ad55-e4b7fcfabbf0.png',
     bio: 'A seasoned developer, aspiring Data Scientist and AI Engineer, passionate about bridging the gap between hardware and data. Leveraging my expertise in Python, I\'ve competed in multiple Hackathons, where I\'ve showcased innovative solutions through data-driven applications. I\'m here to redefine how we integrate technology, pushing the boundaries of data science to drive meaningful change.',
     socialLinks: {
-      facebook: 'https://facebook.com',
-      instagram: 'https://instagram.com',
-      linkedin: 'https://linkedin.com',
+      facebook: 'https://facebook.com/clarencejay.fetalino/',
+      instagram: 'https://instagram.com/jclarence_1001/',
+      linkedin: 'https://www.linkedin.com/in/clarence-fetalino-45b313223',
     },
   },
   {
