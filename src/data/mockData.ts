@@ -132,7 +132,7 @@ export const developers: Developer[] = [
     name: 'Clarence Jay Fetalino',
     role: 'Lead Developer',
     image: '/lovable-uploads/8e145341-18e0-4291-ad55-e4b7fcfabbf0.png',
-    bio: 'Alex leads the technical development of our PPE monitoring system, with expertise in computer vision and real-time data processing.',
+    bio: 'A seasoned developer, aspiring Data Scientist and AI Engineer, passionate about bridging the gap between hardware and data. Leveraging my expertise in Python, I\'ve competed in multiple Hackathons, where I\'ve showcased innovative solutions through data-driven applications. I\'m here to redefine how we integrate technology, pushing the boundaries of data science to drive meaningful change.',
     socialLinks: {
       facebook: 'https://facebook.com',
       instagram: 'https://instagram.com',
