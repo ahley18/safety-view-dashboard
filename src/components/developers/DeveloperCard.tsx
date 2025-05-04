@@ -1,18 +1,14 @@
-
 import React from 'react';
 import { Developer } from '../../data/mockData';
 import { Facebook, Instagram, Linkedin } from 'lucide-react';
 import { Avatar, AvatarImage, AvatarFallback } from '../ui/avatar';
-
 interface DeveloperCardProps {
   developer: Developer;
 }
-
 const DeveloperCard: React.FC<DeveloperCardProps> = ({
   developer
 }) => {
   const initials = developer.name.split(' ').map(n => n[0]).join('').substring(0, 2).toUpperCase();
-
   return <div className="bg-white rounded-xl shadow-sm border border-gray-100 overflow-hidden hover:shadow-md transition-all">
       <div className="p-6">
         <div className="flex items-center gap-5">
@@ -21,20 +17,15 @@ const DeveloperCard: React.FC<DeveloperCardProps> = ({
               <AvatarImage src={developer.image} alt={developer.name} className="object-cover" />
               {developer.name === 'Clarence Jay Fetalino' ? <AvatarFallback>
                   <img alt="Clarence Jay Fetalino" className="h-full w-full object-cover" src="/lovable-uploads/0ef4ecf0-4d64-46c2-b1f5-7207d4f93401.png" />
-                </AvatarFallback> : 
-                developer.name === 'Princess Bacay' ? <AvatarFallback>
+                </AvatarFallback> : developer.name === 'Princess Bacay' ? <AvatarFallback>
                   <img alt="Princess Bacay" className="h-full w-full object-cover" src="/lovable-uploads/b905a6aa-e59e-4129-993a-2770f4b17d30.png" />
-                </AvatarFallback> : 
-                developer.name === 'Abegail Andres' ? <AvatarFallback>
+                </AvatarFallback> : developer.name === 'Abegail Andres' ? <AvatarFallback>
                   <img alt="Abegail Andres" className="h-full w-full object-cover" src="/lovable-uploads/2a6b0786-ef20-4466-a7c9-90e022f1c3ed.png" />
-                </AvatarFallback> :
-                developer.name === 'Eunice Oronce' ? <AvatarFallback>
+                </AvatarFallback> : developer.name === 'Eunice Oronce' ? <AvatarFallback>
                   <img alt="Eunice Oronce" className="h-full w-full object-cover" src="/lovable-uploads/8c0c7809-b579-4470-bf1f-b1e3b0553b1d.png" />
-                </AvatarFallback> :
-                developer.name === 'Marie Antonette Ampo' ? <AvatarFallback>
-                  <img alt="Marie Antonette Ampo" className="h-full w-full object-cover" src="/lovable-uploads/8c0c7809-b579-4470-bf1f-b1e3b0553b1d.png" />
-                </AvatarFallback> :
-                <AvatarFallback className="text-base">{initials}</AvatarFallback>}
+                </AvatarFallback> : developer.name === 'Marie Antonette Ampo' ? <AvatarFallback>
+                  <img alt="Marie Antonette Ampo" className="h-full w-full object-cover" src="/lovable-uploads/88f40a56-375d-4dcf-808b-b6a470bb7adc.png" />
+                </AvatarFallback> : <AvatarFallback className="text-base">{initials}</AvatarFallback>}
             </Avatar>
           </div>
           <div>
