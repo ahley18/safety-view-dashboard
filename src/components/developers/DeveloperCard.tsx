@@ -3,9 +3,11 @@ import React from 'react';
 import { Developer } from '../../data/mockData';
 import { Facebook, Instagram, Linkedin } from 'lucide-react';
 import { Avatar, AvatarImage, AvatarFallback } from '../ui/avatar';
+
 interface DeveloperCardProps {
   developer: Developer;
 }
+
 const DeveloperCard: React.FC<DeveloperCardProps> = ({
   developer
 }) => {
@@ -23,6 +25,9 @@ const DeveloperCard: React.FC<DeveloperCardProps> = ({
                 developer.name === 'Princess Bacay' ? <AvatarFallback>
                   <img alt="Princess Bacay" className="h-full w-full object-cover" src="/lovable-uploads/b905a6aa-e59e-4129-993a-2770f4b17d30.png" />
                 </AvatarFallback> : 
+                developer.name === 'Abegail Andres' ? <AvatarFallback>
+                  <img alt="Abegail Andres" className="h-full w-full object-cover" src="/lovable-uploads/2a6b0786-ef20-4466-a7c9-90e022f1c3ed.png" />
+                </AvatarFallback> :
                 <AvatarFallback className="text-base">{initials}</AvatarFallback>}
             </Avatar>
           </div>

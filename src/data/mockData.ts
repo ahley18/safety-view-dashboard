@@ -146,8 +146,9 @@ export const developers: Developer[] = [
     image: '/lovable-uploads/9f0d14f1-52dc-4261-9314-f53d913e9c74.png',
     bio: 'Sarah specializes in database architecture and Firebase integration, ensuring our data storage is optimized and secure.',
     socialLinks: {
-      facebook: 'https://facebook.com',
-      linkedin: 'https://linkedin.com',
+      facebook: 'https://www.facebook.com/share/16Uhnv6H1p/',
+      instagram: 'https://www.instagram.com/antontteampo?igsh=MXBvZnZ1YTE2b2xtNg==',
+      linkedin: 'https://www.linkedin.com/in/marie-antonette-ampo-1b7b9b363?utm_source=share&utm_campaign=share_via&utm_content=profile&utm_medium=android_app',
     },
   },
   {
@@ -157,8 +158,9 @@ export const developers: Developer[] = [
     image: '/lovable-uploads/9f0d14f1-52dc-4261-9314-f53d913e9c74.png',
     bio: 'Jamal creates intuitive user interfaces that help safety managers quickly assess PPE compliance across their work sites.',
     socialLinks: {
-      instagram: 'https://instagram.com',
-      linkedin: 'https://linkedin.com',
+      facebook: 'https://www.facebook.com/augusleven/',
+      instagram: 'https://www.instagram.com/augusleven/',
+      linkedin: 'https://www.linkedin.com/in/abegail-andres-641360312',
     },
   },
   {
@@ -168,9 +170,9 @@ export const developers: Developer[] = [
     image: '/lovable-uploads/9f0d14f1-52dc-4261-9314-f53d913e9c74.png',
     bio: 'Elena develops the advanced algorithms that detect PPE equipment with high accuracy in various lighting and environmental conditions.',
     socialLinks: {
-      facebook: 'https://facebook.com',
-      instagram: 'https://instagram.com',
-      linkedin: 'https://linkedin.com',
+      facebook: 'https://www.facebook.com/cessbacay',
+      instagram: 'https://www.instagram.com/cessbacay',
+      linkedin: 'https://www.linkedin.com/in/princess-bacay',
     },
   },
   {
@@ -180,7 +182,9 @@ export const developers: Developer[] = [
     image: '/lovable-uploads/9f0d14f1-52dc-4261-9314-f53d913e9c74.png',
     bio: 'Michael ensures our monitoring system is reliable and scalable, with minimal downtime and rapid deployment of new features.',
     socialLinks: {
-      linkedin: 'https://linkedin.com',
+      facebook: 'https://www.facebook.com/share/1KmTjpxgoL/',
+      instagram: 'https://www.instagram.com/euniceangela__/?hl=en',
+      linkedin: 'https://www.linkedin.com/in/oronce-eunice?utm_source=share&utm_campaign=share_via&utm_content=profile&utm_medium=android_app',
     },
   },
 ];
