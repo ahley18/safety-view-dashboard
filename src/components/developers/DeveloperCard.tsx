@@ -28,6 +28,12 @@ const DeveloperCard: React.FC<DeveloperCardProps> = ({
                 developer.name === 'Abegail Andres' ? <AvatarFallback>
                   <img alt="Abegail Andres" className="h-full w-full object-cover" src="/lovable-uploads/2a6b0786-ef20-4466-a7c9-90e022f1c3ed.png" />
                 </AvatarFallback> :
+                developer.name === 'Eunice Oronce' ? <AvatarFallback>
+                  <img alt="Eunice Oronce" className="h-full w-full object-cover" src="/lovable-uploads/8c0c7809-b579-4470-bf1f-b1e3b0553b1d.png" />
+                </AvatarFallback> :
+                developer.name === 'Marie Antonette Ampo' ? <AvatarFallback>
+                  <img alt="Marie Antonette Ampo" className="h-full w-full object-cover" src="/lovable-uploads/8c0c7809-b579-4470-bf1f-b1e3b0553b1d.png" />
+                </AvatarFallback> :
                 <AvatarFallback className="text-base">{initials}</AvatarFallback>}
             </Avatar>
           </div>
