@@ -156,7 +156,8 @@ export const developers: Developer[] = [
     name: 'Abegail Andres',
     role: 'Frontend Developer',
     image: '/lovable-uploads/9f0d14f1-52dc-4261-9314-f53d913e9c74.png',
-    bio: 'Jamal creates intuitive user interfaces that help safety managers quickly assess PPE compliance across their work sites.',
+    bio: 'A passionate frontend developer who believes great design goes beyond aesthetics—it's about how users feel when they interact with technology. With a strong foundation in responsive design and modern UI frameworks, I turn ideas into clean, intuitive experiences. I’m here to build user interfaces that don’t just work—they connect with people.
+',
     socialLinks: {
       facebook: 'https://www.facebook.com/augusleven/',
       instagram: 'https://www.instagram.com/augusleven/',
