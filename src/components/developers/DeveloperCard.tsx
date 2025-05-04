@@ -1,3 +1,4 @@
+
 import React from 'react';
 import { Developer } from '../../data/mockData';
 import { Facebook, Instagram, Linkedin } from 'lucide-react';
@@ -10,7 +11,6 @@ const DeveloperCard: React.FC<DeveloperCardProps> = ({
 }) => {
   const initials = developer.name.split(' ').map(n => n[0]).join('').substring(0, 2).toUpperCase();
 
-  // We no longer need the special case for Clarence as we're using the new image directly from mockData
   return <div className="bg-white rounded-xl shadow-sm border border-gray-100 overflow-hidden hover:shadow-md transition-all">
       <div className="p-6">
         <div className="flex items-center gap-5">
@@ -19,7 +19,11 @@ const DeveloperCard: React.FC<DeveloperCardProps> = ({
               <AvatarImage src={developer.image} alt={developer.name} className="object-cover" />
               {developer.name === 'Clarence Jay Fetalino' ? <AvatarFallback>
                   <img alt="Clarence Jay Fetalino" className="h-full w-full object-cover" src="/lovable-uploads/0ef4ecf0-4d64-46c2-b1f5-7207d4f93401.png" />
-                </AvatarFallback> : <AvatarFallback className="text-base">{initials}</AvatarFallback>}
+                </AvatarFallback> : 
+                developer.name === 'Princess Bacay' ? <AvatarFallback>
+                  <img alt="Princess Bacay" className="h-full w-full object-cover" src="/lovable-uploads/b905a6aa-e59e-4129-993a-2770f4b17d30.png" />
+                </AvatarFallback> : 
+                <AvatarFallback className="text-base">{initials}</AvatarFallback>}
             </Avatar>
           </div>
           <div>
