@@ -52,7 +52,7 @@ const Sidebar: React.FC<SidebarProps> = ({ activeTab, setActiveTab }) => {
               }`}
             >
               <Users className="h-5 w-5 mr-3" />
-              <span className="hidden md:inline-block">Meet the Developers</span>
+              <span className="hidden md:inline-block">Developers</span>
             </button>
           </li>
         </ul>
