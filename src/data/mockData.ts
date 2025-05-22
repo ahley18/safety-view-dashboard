@@ -143,7 +143,7 @@ export const developers: Developer[] = [
     name: 'Marie Antonette Ampo',
     role: 'Backend Developer',
     image: '/lovable-uploads/9f0d14f1-52dc-4261-9314-f53d913e9c74.png',
-    bio: 'A curious and committed backend developer who loves building systems that quietly power everything in the background. With experience in managing databases, APIs, and server-side logic, I focus on creating fast, secure, and scalable solutions. I’m here to make sure every click, tap, and request behind the scenes just works—smoothly and reliably.',
+    bio: 'A curious and committed backend developer who loves building systems that quietly power everything in the background. With experience in managing databases, APIs, and server-side logic, I focus on creating fast, secure, and scalable solutions. I\'m here to make sure every click, tap, and request behind the scenes just works—smoothly and reliably.',
     socialLinks: {
       facebook: 'https://www.facebook.com/share/16Uhnv6H1p/',
       instagram: 'https://www.instagram.com/antontteampo?igsh=MXBvZnZ1YTE2b2xtNg==',
@@ -155,7 +155,7 @@ export const developers: Developer[] = [
     name: 'Abegail Andres',
     role: 'Frontend Developer',
     image: '/lovable-uploads/9f0d14f1-52dc-4261-9314-f53d913e9c74.png',
-    bio: 'A passionate frontend developer who believes that great design goes beyond aesthetics—it’s about how users feel when they interact with technology. With a strong foundation in responsive design and modern UI frameworks, I turn ideas into clean, intuitive experiences. I’m here to build user interfaces that don’t just work—they resonate with people.',
+    bio: 'A passionate frontend developer who believes that great design goes beyond aesthetics—it\'s about how users feel when they interact with technology. With a strong foundation in responsive design and modern UI frameworks, I turn ideas into clean, intuitive experiences. I\'m here to build user interfaces that don\'t just work—they resonate with people.',
     socialLinks: {
       facebook: 'https://www.facebook.com/augusleven/',
       instagram: 'https://www.instagram.com/augusleven/',
@@ -167,7 +167,7 @@ export const developers: Developer[] = [
     name: 'Princess Bacay',
     role: 'Computer Vision Specialist',
     image: '/lovable-uploads/9f0d14f1-52dc-4261-9314-f53d913e9c74.png',
-    bio: 'An explorer of intelligent systems, I specialize in computer vision—helping machines understand the world through images and data. Whether it’s facial recognition, object detection, or real-time tracking, I combine code with creativity to solve real-world problems. I’m here to make technology see the world more clearly—one pixel at a time.',
+    bio: 'An explorer of intelligent systems, I specialize in computer vision—helping machines understand the world through images and data. Whether it\'s facial recognition, object detection, or real-time tracking, I combine code with creativity to solve real-world problems. I\'m here to make technology see the world more clearly—one pixel at a time.',
     socialLinks: {
       facebook: 'https://www.facebook.com/cessbacay',
       instagram: 'https://www.instagram.com/cessbacay',
@@ -179,7 +179,7 @@ export const developers: Developer[] = [
     name: 'Eunice Oronce',
     role: 'DevOps Engineer',
     image: '/lovable-uploads/9f0d14f1-52dc-4261-9314-f53d913e9c74.png',
-    bio: 'A detail-driven DevOps engineer focused on building bridges between development and deployment. With a love for automation, cloud infrastructure, and scalable systems, I streamline workflows and remove roadblocks that slow teams down. I’m here to make sure great ideas don’t just stay in code—they reach the world quickly, securely, and efficiently.',
+    bio: 'A detail-driven DevOps engineer focused on building bridges between development and deployment. With a love for automation, cloud infrastructure, and scalable systems, I streamline workflows and remove roadblocks that slow teams down. I\'m here to make sure great ideas don\'t just stay in code—they reach the world quickly, securely, and efficiently.',
     socialLinks: {
       facebook: 'https://www.facebook.com/share/1KmTjpxgoL/',
       instagram: 'https://www.instagram.com/euniceangela__/?hl=en',

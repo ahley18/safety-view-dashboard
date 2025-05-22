@@ -1,6 +1,7 @@
 
 import React from 'react';
-import { LayoutDashboard, Users } from 'lucide-react';
+import { LayoutDashboard, Users, Home } from 'lucide-react';
+import { useNavigate } from 'react-router-dom';
 
 interface SidebarProps {
   activeTab: 'dashboard' | 'developers';
@@ -8,6 +9,8 @@ interface SidebarProps {
 }
 
 const Sidebar: React.FC<SidebarProps> = ({ activeTab, setActiveTab }) => {
+  const navigate = useNavigate();
+
   return (
     <div className="w-20 md:w-64 bg-white border-r border-gray-200 shadow-sm">
       <div className="p-4">
@@ -17,6 +20,15 @@ const Sidebar: React.FC<SidebarProps> = ({ activeTab, setActiveTab }) => {
       
       <nav className="mt-6">
         <ul>
+          <li>
+            <button
+              onClick={() => navigate('/')}
+              className="w-full flex items-center p-4 text-left transition-colors text-gray-600 hover:bg-gray-100"
+            >
+              <Home className="h-5 w-5 mr-3" />
+              <span className="hidden md:inline-block">Home</span>
+            </button>
+          </li>
           <li>
             <button
               onClick={() => setActiveTab('dashboard')}
