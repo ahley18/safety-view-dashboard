@@ -4,18 +4,14 @@ import { Button } from '@/components/ui/button';
 import { ArrowRight, Shield, Eye, UserCheck, BarChart } from 'lucide-react';
 import { developers } from '@/data/mockData';
 import DeveloperCard from '@/components/developers/DeveloperCard';
-
 const Landing: React.FC = () => {
   const navigate = useNavigate();
-
-  return (
-    <div className="min-h-screen w-full bg-white">
+  return <div className="min-h-screen w-full bg-white">
       {/* Hero Section */}
       <section className="relative h-screen flex items-center">
-        <div 
-          className="absolute inset-0 z-0 bg-cover bg-center opacity-20"
-          style={{ backgroundImage: "url('/lovable-uploads/666af25b-439a-48fb-95ce-bf4d3d0c6f8e.png')" }}
-        ></div>
+        <div className="absolute inset-0 z-0 bg-cover bg-center opacity-20" style={{
+        backgroundImage: "url('/lovable-uploads/666af25b-439a-48fb-95ce-bf4d3d0c6f8e.png')"
+      }}></div>
         <div className="container mx-auto px-4 z-10 relative">
           <div className="max-w-3xl">
             <h1 className="text-4xl md:text-6xl font-bold text-gray-900 leading-tight animate-fade-in">
@@ -24,11 +20,7 @@ const Landing: React.FC = () => {
             <p className="mt-6 text-lg text-gray-700 animate-fade-in">
               Enhance workplace safety with our intelligent PPE monitoring solution. Real-time detection and compliance tracking for a safer environment.
             </p>
-            <Button 
-              className="mt-8 text-lg px-8 py-6 animate-fade-in"
-              size="lg" 
-              onClick={() => navigate('/dashboard')}
-            >
+            <Button className="mt-8 text-lg px-8 py-6 animate-fade-in" size="lg" onClick={() => navigate('/dashboard')}>
               Get Started <ArrowRight className="ml-2" />
             </Button>
           </div>
@@ -36,7 +28,7 @@ const Landing: React.FC = () => {
         <div className="absolute bottom-10 left-1/2 -translate-x-1/2 animate-bounce">
           <a href="#services" className="text-primary">
             <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-              <path d="M12 5v14M5 12l7 7 7-7"/>
+              <path d="M12 5v14M5 12l7 7 7-7" />
             </svg>
           </a>
         </div>
@@ -91,11 +83,7 @@ const Landing: React.FC = () => {
         <div className="container mx-auto px-4">
           <div className="flex flex-col lg:flex-row gap-16 items-center">
             <div className="lg:w-1/2">
-              <img 
-                src="/lovable-uploads/62d9fee5-237c-4733-abca-fa7c90d4551a.png" 
-                alt="Safety First" 
-                className="rounded-xl shadow-lg w-full object-cover"
-              />
+              <img alt="Safety First" className="rounded-xl shadow-lg w-full object-cover" src="/lovable-uploads/9885d0d1-cc58-4869-b60d-952fea45102f.png" />
             </div>
             <div className="lg:w-1/2">
               <h2 className="text-3xl font-bold text-gray-900">About Us</h2>
@@ -132,11 +120,9 @@ const Landing: React.FC = () => {
           </div>
           
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-            {developers.map((developer) => (
-              <div key={developer.id} className="animate-slide-in">
+            {developers.map(developer => <div key={developer.id} className="animate-slide-in">
                 <DeveloperCard developer={developer} />
-              </div>
-            ))}
+              </div>)}
           </div>
         </div>
       </section>
@@ -181,8 +167,6 @@ const Landing: React.FC = () => {
           </div>
         </div>
       </footer>
-    </div>
-  );
+    </div>;
 };
-
 export default Landing;
