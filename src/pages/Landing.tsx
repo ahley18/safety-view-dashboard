@@ -1,4 +1,3 @@
-
 import React from 'react';
 import { useNavigate } from 'react-router-dom';
 import { Button } from '@/components/ui/button';
@@ -15,7 +14,7 @@ const Landing: React.FC = () => {
       <section className="relative h-screen flex items-center">
         <div 
           className="absolute inset-0 z-0 bg-cover bg-center opacity-20"
-          style={{ backgroundImage: "url('/lovable-uploads/c89ed7bd-531b-48a6-9547-2372db63fbf4.png')" }}
+          style={{ backgroundImage: "url('/lovable-uploads/666af25b-439a-48fb-95ce-bf4d3d0c6f8e.png')" }}
         ></div>
         <div className="container mx-auto px-4 z-10 relative">
           <div className="max-w-3xl">
