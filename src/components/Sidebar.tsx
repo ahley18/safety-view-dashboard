@@ -12,10 +12,10 @@ const Sidebar: React.FC<SidebarProps> = ({ activeTab, setActiveTab }) => {
   const navigate = useNavigate();
 
   return (
-    <div className="w-20 md:w-64 bg-white border-r border-gray-200 shadow-sm">
+    <div className="w-20 md:w-64 bg-card border-r border-border shadow-sm dark">
       <div className="p-4 flex items-center">
         <img 
-          src="/lovable-uploads/d2a72d0c-934d-4013-8400-1bc710e93f8b.png" 
+          src="/lovable-uploads/c89ed7bd-531b-48a6-9547-2372db63fbf4.png" 
           alt="PPE Monitor Logo" 
           className="h-8 w-auto mr-3 md:mr-2"
         />
@@ -27,7 +27,7 @@ const Sidebar: React.FC<SidebarProps> = ({ activeTab, setActiveTab }) => {
           <li>
             <button
               onClick={() => navigate('/')}
-              className="w-full flex items-center p-4 text-left transition-colors text-gray-600 hover:bg-gray-100"
+              className="w-full flex items-center p-4 text-left transition-colors text-muted-foreground hover:bg-accent hover:text-accent-foreground"
             >
               <Home className="h-5 w-5 mr-3" />
               <span className="hidden md:inline-block">Home</span>
@@ -38,8 +38,8 @@ const Sidebar: React.FC<SidebarProps> = ({ activeTab, setActiveTab }) => {
               onClick={() => setActiveTab('dashboard')}
               className={`w-full flex items-center p-4 text-left transition-colors ${
                 activeTab === 'dashboard'
-                  ? 'text-primary bg-blue-50 border-r-4 border-primary'
-                  : 'text-gray-600 hover:bg-gray-100'
+                  ? 'text-primary bg-accent border-r-4 border-primary'
+                  : 'text-muted-foreground hover:bg-accent hover:text-accent-foreground'
               }`}
             >
               <LayoutDashboard className="h-5 w-5 mr-3" />
