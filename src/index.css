@@ -1,4 +1,5 @@
 
+
 @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap');
 
 @tailwind base;
@@ -46,10 +47,6 @@
     @apply bg-background text-foreground font-inter;
   }
 
-  html {
-    @apply dark;
-  }
-
   /* Custom animation classes */
   .fade-in {
     opacity: 0;
@@ -70,3 +67,4 @@
     to { opacity: 1; transform: translateX(0); }
   }
 }
+
