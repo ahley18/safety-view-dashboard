@@ -9,7 +9,7 @@ import { Card, CardHeader, CardTitle, CardContent } from '@/components/ui/card';
 const firebaseConfig = {
   apiKey: "AIzaSyDcNvKYuxSzlpl7SLbjDQcCXYkP-KLtQR4",
   databaseURL: "https://ode-project-734d6-default-rtdb.asia-southeast1.firebasedatabase.app/",
-  projectId: "ode-project-734d6",
+  projectId: "ode-project-734d6"
 };
 
 // Initialize Firebase
@@ -23,7 +23,6 @@ interface DWSEntry {
   'Door-Status'?: string;
   'Person-Nearby'?: string | number;
 }
-
 const DashboardView: React.FC = () => {
   const [searchTerm, setSearchTerm] = useState('');
   const [filterAction, setFilterAction] = useState<'all' | 'open' | 'closed'>('all');
@@ -47,56 +46,42 @@ const DashboardView: React.FC = () => {
   // Fetch data from Firebase
   useEffect(() => {
     if (!database) return;
-
     setLoading(true);
     const dwsRef = ref(database, 'DWS-In-Out');
-
     try {
-      const listener = onValue(
-        dwsRef,
-        (snapshot) => {
-          if (snapshot.exists()) {
-            const data = snapshot.val();
-            
-            // Extract door status and person nearby from root level
-            const doorStatus = data['Door-Status'] || "0";
-            const personNearby = String(data['Person-Nearby'] || "0");
-            
-            // Filter out non-timestamp entries (like Door-Status and Person-Nearby)
-            const entries = Object.entries(data)
-              .filter(([key, value]) => 
-                key !== 'Door-Status' && 
-                key !== 'Person-Nearby' && 
-                typeof value === 'object'
-              )
-              .map(([key, value]: [string, any]) => ({
-                id: key,
-                timestamp: key,
-                'ID Number': value['ID Number'] || 'Unknown',
-                'Door-Status': doorStatus,
-                'Person-Nearby': personNearby
-              }));
-            
-            // Sort by timestamp in descending order (newest first)
-            const sortedData = entries.sort((a, b) => 
-              new Date(b.timestamp).getTime() - new Date(a.timestamp).getTime()
-            );
-            
-            // Take only the latest 10 entries
-            const latestEntries = sortedData.slice(0, 10);
-            setDwsData(latestEntries);
-          } else {
-            setDwsData([]);
-          }
-          setLoading(false);
-          setError(null);
-        },
-        (error) => {
-          console.error("Data fetch error:", error);
-          setError("Failed to connect to database. Please try again later.");
-          setLoading(false);
+      const listener = onValue(dwsRef, snapshot => {
+        if (snapshot.exists()) {
+          const data = snapshot.val();
+
+          // Extract door status and person nearby from root level
+          const doorStatus = data['Door-Status'] || "0";
+          const personNearby = String(data['Person-Nearby'] || "0");
+
+          // Filter out non-timestamp entries (like Door-Status and Person-Nearby)
+          const entries = Object.entries(data).filter(([key, value]) => key !== 'Door-Status' && key !== 'Person-Nearby' && typeof value === 'object').map(([key, value]: [string, any]) => ({
+            id: key,
+            timestamp: key,
+            'ID Number': value['ID Number'] || 'Unknown',
+            'Door-Status': doorStatus,
+            'Person-Nearby': personNearby
+          }));
+
+          // Sort by timestamp in descending order (newest first)
+          const sortedData = entries.sort((a, b) => new Date(b.timestamp).getTime() - new Date(a.timestamp).getTime());
+
+          // Take only the latest 10 entries
+          const latestEntries = sortedData.slice(0, 10);
+          setDwsData(latestEntries);
+        } else {
+          setDwsData([]);
         }
-      );
+        setLoading(false);
+        setError(null);
+      }, error => {
+        console.error("Data fetch error:", error);
+        setError("Failed to connect to database. Please try again later.");
+        setLoading(false);
+      });
 
       // Clean up the listener on component unmount
       return () => {
@@ -117,28 +102,24 @@ const DashboardView: React.FC = () => {
         console.log("Checking for updates...");
       }
     }, 5000);
-
     return () => {
       clearInterval(refreshInterval);
     };
   }, [database]);
 
   // Filter data based on search term and filter action
-  const filteredData = dwsData.filter((record) => {
-    const matchesSearch = 
-      record['ID Number']?.toLowerCase().includes(searchTerm.toLowerCase());
-    
+  const filteredData = dwsData.filter(record => {
+    const matchesSearch = record['ID Number']?.toLowerCase().includes(searchTerm.toLowerCase());
     if (filterAction === 'all') return matchesSearch;
     if (filterAction === 'open') return matchesSearch && record['Door-Status'] === "1";
     return matchesSearch && record['Door-Status'] === "0";
   });
-  
+
   // Format timestamp to readable date and time
   const formatTimestamp = (timestamp: string): string => {
     if (!timestamp) {
       return 'Invalid Date';
     }
-    
     try {
       // The timestamp is already in a readable format like "2025-04-26 01:43:56"
       // Just return it directly
@@ -148,9 +129,7 @@ const DashboardView: React.FC = () => {
       return 'Error with Date';
     }
   };
-
-  return (
-    <div className="space-y-6">
+  return <div className="space-y-6">
       <div className="flex flex-col md:flex-row justify-between items-start md:items-center gap-4">
         <div>
           <h1 className="text-2xl font-bold text-gray-800">PPE Monitoring Dashboard</h1>
@@ -160,20 +139,10 @@ const DashboardView: React.FC = () => {
         <div className="w-full md:w-auto flex flex-col md:flex-row gap-3">
           <div className="relative">
             <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400" size={18} />
-            <input
-              type="text"
-              placeholder="Search by ID number..."
-              value={searchTerm}
-              onChange={(e) => setSearchTerm(e.target.value)}
-              className="pl-10 pr-4 py-2 border rounded-lg focus:ring-2 focus:ring-primary/30 focus:border-primary outline-none w-full md:w-64"
-            />
+            <input type="text" placeholder="Search by ID number..." value={searchTerm} onChange={e => setSearchTerm(e.target.value)} className="pl-10 pr-4 py-2 border rounded-lg focus:ring-2 focus:ring-primary/30 focus:border-primary outline-none w-full md:w-64" />
           </div>
           
-          <select
-            value={filterAction}
-            onChange={(e) => setFilterAction(e.target.value as 'all' | 'open' | 'closed')}
-            className="border rounded-lg px-4 py-2 focus:ring-2 focus:ring-primary/30 focus:border-primary outline-none"
-          >
+          <select value={filterAction} onChange={e => setFilterAction(e.target.value as 'all' | 'open' | 'closed')} className="border rounded-lg px-4 py-2 focus:ring-2 focus:ring-primary/30 focus:border-primary outline-none bg-slate-950">
             <option value="all">All Door Status</option>
             <option value="open">Open Only</option>
             <option value="closed">Closed Only</option>
@@ -181,24 +150,19 @@ const DashboardView: React.FC = () => {
         </div>
       </div>
       
-      {error && (
-        <Alert variant="destructive">
+      {error && <Alert variant="destructive">
           <AlertTitle>Error</AlertTitle>
           <AlertDescription>{error}</AlertDescription>
-        </Alert>
-      )}
+        </Alert>}
       
       <div className="bg-white rounded-xl shadow-sm border border-gray-100 overflow-hidden">
         <div className="p-6">
           <h2 className="text-lg font-semibold mb-4">Door Monitoring System - Latest Entries</h2>
           
-          {loading ? (
-            <div className="text-center py-8">
+          {loading ? <div className="text-center py-8">
               <div className="inline-block animate-spin rounded-full h-8 w-8 border-b-2 border-primary"></div>
               <p className="mt-2 text-gray-500">Loading data...</p>
-            </div>
-          ) : filteredData.length > 0 ? (
-            <div className="overflow-x-auto">
+            </div> : filteredData.length > 0 ? <div className="overflow-x-auto">
               <table className="min-w-full divide-y divide-gray-200">
                 <thead className="bg-gray-50">
                   <tr>
@@ -217,8 +181,7 @@ const DashboardView: React.FC = () => {
                   </tr>
                 </thead>
                 <tbody className="bg-white divide-y divide-gray-200">
-                  {filteredData.map((entry) => (
-                    <tr key={entry.id} className="hover:bg-gray-50 transition-colors">
+                  {filteredData.map(entry => <tr key={entry.id} className="hover:bg-gray-50 transition-colors">
                       <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
                         {formatTimestamp(entry.timestamp)}
                       </td>
@@ -226,33 +189,21 @@ const DashboardView: React.FC = () => {
                         <div className="font-medium text-gray-900">{entry['ID Number']}</div>
                       </td>
                       <td className="px-6 py-4 whitespace-nowrap">
-                        {entry['Door-Status'] === "1" ? (
-                          <span className="px-2.5 py-0.5 bg-blue-100 text-blue-800 rounded-full text-xs font-medium">Open</span>
-                        ) : (
-                          <span className="px-2.5 py-0.5 bg-purple-100 text-purple-800 rounded-full text-xs font-medium">Closed</span>
-                        )}
+                        {entry['Door-Status'] === "1" ? <span className="px-2.5 py-0.5 bg-blue-100 text-blue-800 rounded-full text-xs font-medium">Open</span> : <span className="px-2.5 py-0.5 bg-purple-100 text-purple-800 rounded-full text-xs font-medium">Closed</span>}
                       </td>
                       <td className="px-6 py-4 whitespace-nowrap">
-                        {entry['Person-Nearby'] === "1" ? (
-                          <span className="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-green-100 text-green-800">
+                        {entry['Person-Nearby'] === "1" ? <span className="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-green-100 text-green-800">
                             Yes
-                          </span>
-                        ) : (
-                          <span className="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-red-100 text-red-800">
+                          </span> : <span className="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-red-100 text-red-800">
                             No
-                          </span>
-                        )}
+                          </span>}
                       </td>
-                    </tr>
-                  ))}
+                    </tr>)}
                 </tbody>
               </table>
-            </div>
-          ) : (
-            <div className="text-center py-8 text-gray-500">
+            </div> : <div className="text-center py-8 text-gray-500">
               No records found. Try adjusting your search or filters.
-            </div>
-          )}
+            </div>}
         </div>
       </div>
       
@@ -271,10 +222,9 @@ const DashboardView: React.FC = () => {
                   </span>
                 </div>
                 <div className="w-full bg-gray-200 rounded-full h-2.5">
-                  <div 
-                    className="bg-blue-500 h-2.5 rounded-full" 
-                    style={{ width: `${dwsData.length > 0 ? (dwsData.filter(entry => entry['Door-Status'] === "1").length / dwsData.length) * 100 : 0}%` }}
-                  ></div>
+                  <div className="bg-blue-500 h-2.5 rounded-full" style={{
+                  width: `${dwsData.length > 0 ? dwsData.filter(entry => entry['Door-Status'] === "1").length / dwsData.length * 100 : 0}%`
+                }}></div>
                 </div>
               </div>
               <div>
@@ -285,10 +235,9 @@ const DashboardView: React.FC = () => {
                   </span>
                 </div>
                 <div className="w-full bg-gray-200 rounded-full h-2.5">
-                  <div 
-                    className="bg-purple-500 h-2.5 rounded-full" 
-                    style={{ width: `${dwsData.length > 0 ? (dwsData.filter(entry => entry['Door-Status'] === "0").length / dwsData.length) * 100 : 0}%` }}
-                  ></div>
+                  <div className="bg-purple-500 h-2.5 rounded-full" style={{
+                  width: `${dwsData.length > 0 ? dwsData.filter(entry => entry['Door-Status'] === "0").length / dwsData.length * 100 : 0}%`
+                }}></div>
                 </div>
               </div>
             </div>
@@ -309,10 +258,9 @@ const DashboardView: React.FC = () => {
                   </span>
                 </div>
                 <div className="w-full bg-gray-200 rounded-full h-2.5">
-                  <div 
-                    className="bg-green-500 h-2.5 rounded-full" 
-                    style={{ width: `${dwsData.length > 0 ? (dwsData.filter(entry => entry['Person-Nearby'] === "1").length / dwsData.length) * 100 : 0}%` }}
-                  ></div>
+                  <div className="bg-green-500 h-2.5 rounded-full" style={{
+                  width: `${dwsData.length > 0 ? dwsData.filter(entry => entry['Person-Nearby'] === "1").length / dwsData.length * 100 : 0}%`
+                }}></div>
                 </div>
               </div>
               <div>
@@ -323,10 +271,9 @@ const DashboardView: React.FC = () => {
                   </span>
                 </div>
                 <div className="w-full bg-gray-200 rounded-full h-2.5">
-                  <div 
-                    className="bg-red-500 h-2.5 rounded-full" 
-                    style={{ width: `${dwsData.length > 0 ? (dwsData.filter(entry => entry['Person-Nearby'] === "0").length / dwsData.length) * 100 : 0}%` }}
-                  ></div>
+                  <div className="bg-red-500 h-2.5 rounded-full" style={{
+                  width: `${dwsData.length > 0 ? dwsData.filter(entry => entry['Person-Nearby'] === "0").length / dwsData.length * 100 : 0}%`
+                }}></div>
                 </div>
               </div>
             </div>
@@ -360,8 +307,6 @@ const DashboardView: React.FC = () => {
           </CardContent>
         </Card>
       </div>
-    </div>
-  );
+    </div>;
 };
-
 export default DashboardView;
