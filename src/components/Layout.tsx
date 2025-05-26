@@ -3,7 +3,7 @@ import React, { useState } from 'react';
 import Sidebar from './Sidebar';
 import DashboardView from './dashboard/DashboardView';
 
-type Tab = 'dashboard' | 'developers';
+type Tab = 'dashboard';
 
 const Layout: React.FC = () => {
   const [activeTab, setActiveTab] = useState<Tab>('dashboard');
