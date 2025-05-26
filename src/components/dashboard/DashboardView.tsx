@@ -132,7 +132,7 @@ const DashboardView: React.FC = () => {
   return <div className="space-y-6">
       <div className="flex flex-col md:flex-row justify-between items-start md:items-center gap-4">
         <div>
-          <h1 className="text-2xl font-bold text-gray-800">PPE Monitoring Dashboard</h1>
+          <h1 className="text-2xl font-bold text-slate-50">PPE Monitoring Dashboard</h1>
           <p className="text-gray-500">Real-time monitoring from Firebase Realtime Database</p>
         </div>
         
