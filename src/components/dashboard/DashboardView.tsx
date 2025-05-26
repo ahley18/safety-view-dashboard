@@ -182,7 +182,7 @@ const DashboardView: React.FC = () => {
                 </thead>
                 <tbody className="bg-white divide-y divide-gray-200">
                   {filteredData.map(entry => <tr key={entry.id} className="hover:bg-gray-50 transition-colors">
-                      <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500 bg-neutral-900">
+                      <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
                         {formatTimestamp(entry.timestamp)}
                       </td>
                       <td className="px-6 py-4 whitespace-nowrap">
