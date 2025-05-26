@@ -4,8 +4,8 @@ import { LayoutDashboard, Home } from 'lucide-react';
 import { useNavigate } from 'react-router-dom';
 
 interface SidebarProps {
-  activeTab: 'dashboard' | 'developers';
-  setActiveTab: (tab: 'dashboard' | 'developers') => void;
+  activeTab: 'dashboard';
+  setActiveTab: (tab: 'dashboard') => void;
 }
 
 const Sidebar: React.FC<SidebarProps> = ({ activeTab, setActiveTab }) => {
@@ -13,9 +13,13 @@ const Sidebar: React.FC<SidebarProps> = ({ activeTab, setActiveTab }) => {
 
   return (
     <div className="w-20 md:w-64 bg-white border-r border-gray-200 shadow-sm">
-      <div className="p-4">
+      <div className="p-4 flex items-center">
+        <img 
+          src="/lovable-uploads/d2a72d0c-934d-4013-8400-1bc710e93f8b.png" 
+          alt="PPE Monitor Logo" 
+          className="h-8 w-auto mr-3 md:mr-2"
+        />
         <h1 className="text-xl font-bold text-primary hidden md:block">PPE Monitor</h1>
-        <h1 className="text-xl font-bold text-primary md:hidden">PPE</h1>
       </div>
       
       <nav className="mt-6">

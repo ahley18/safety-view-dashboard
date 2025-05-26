@@ -4,14 +4,28 @@ import { Button } from '@/components/ui/button';
 import { ArrowRight, Shield, Eye, UserCheck, BarChart } from 'lucide-react';
 import { developers } from '@/data/mockData';
 import DeveloperCard from '@/components/developers/DeveloperCard';
+
 const Landing: React.FC = () => {
   const navigate = useNavigate();
-  return <div className="min-h-screen w-full bg-white">
+
+  return (
+    <div className="min-h-screen w-full bg-white">
+      {/* Header with Logo */}
+      <header className="absolute top-0 left-0 right-0 z-20 p-6">
+        <div className="container mx-auto flex items-center">
+          <img 
+            src="/lovable-uploads/d2a72d0c-934d-4013-8400-1bc710e93f8b.png" 
+            alt="PPE Detection and Monitoring Systems Logo" 
+            className="h-12 w-auto"
+          />
+        </div>
+      </header>
+
       {/* Hero Section */}
       <section className="relative h-screen flex items-center">
         <div className="absolute inset-0 z-0 bg-cover bg-center opacity-20" style={{
-        backgroundImage: "url('/lovable-uploads/666af25b-439a-48fb-95ce-bf4d3d0c6f8e.png')"
-      }}></div>
+          backgroundImage: "url('/lovable-uploads/666af25b-439a-48fb-95ce-bf4d3d0c6f8e.png')"
+        }}></div>
         <div className="container mx-auto px-4 z-10 relative">
           <div className="max-w-3xl">
             <h1 className="text-4xl md:text-6xl font-bold text-gray-900 leading-tight animate-fade-in">
@@ -131,9 +145,16 @@ const Landing: React.FC = () => {
       <footer className="bg-gray-900 text-white py-12">
         <div className="container mx-auto px-4">
           <div className="flex flex-col md:flex-row justify-between">
-            <div className="mb-8 md:mb-0">
-              <h3 className="text-xl font-bold">PPE Monitor</h3>
-              <p className="mt-2 text-gray-400">Enhancing workplace safety through technology</p>
+            <div className="mb-8 md:mb-0 flex items-center">
+              <img 
+                src="/lovable-uploads/d2a72d0c-934d-4013-8400-1bc710e93f8b.png" 
+                alt="PPE Monitor Logo" 
+                className="h-8 w-auto mr-3 brightness-0 invert"
+              />
+              <div>
+                <h3 className="text-xl font-bold">PPE Monitor</h3>
+                <p className="mt-2 text-gray-400">Enhancing workplace safety through technology</p>
+              </div>
             </div>
             <div className="grid grid-cols-2 md:grid-cols-3 gap-8">
               <div>
@@ -167,6 +188,8 @@ const Landing: React.FC = () => {
           </div>
         </div>
       </footer>
-    </div>;
+    </div>
+  );
 };
+
 export default Landing;
