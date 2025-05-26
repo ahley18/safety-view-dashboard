@@ -156,7 +156,7 @@ const DashboardView: React.FC = () => {
         </Alert>}
       
       <div className="bg-white rounded-xl shadow-sm border border-gray-100 overflow-hidden">
-        <div className="p-6">
+        <div className="p-6 bg-slate-800">
           <h2 className="text-lg font-semibold mb-4">Door Monitoring System - Latest Entries</h2>
           
           {loading ? <div className="text-center py-8">
