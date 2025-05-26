@@ -42,12 +42,8 @@
     @apply border-border;
   }
 
-  html {
-    @apply dark;
-  }
-
   body {
-    @apply bg-background text-foreground font-inter dark;
+    @apply bg-background text-foreground font-inter;
   }
 
   /* Custom animation classes */
