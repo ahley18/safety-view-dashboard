@@ -23,9 +23,9 @@ interface DWSEntry {
   id: string;
   timestamp: string;
   'ID Number': string;
-  'Hardhat'?: string | number;
-  'Vest'?: string | number;
-  'Gloves'?: string | number;
+  'Hardhat': number;
+  'Vest': number;
+  'Gloves': number;
   'Entry-Exit'?: string;
 }
 
@@ -59,33 +59,36 @@ const DashboardView: React.FC = () => {
       const listener = onValue(dwsRef, snapshot => {
         if (snapshot.exists()) {
           const data = snapshot.val();
+          console.log("Received Firebase data:", data);
 
-          // Filter out non-timestamp entries and create entries with PPE data
+          // Create entries from timestamp-based data
           const entries = Object.entries(data)
             .filter(([key, value]) => 
-              key !== 'Door-Status' && 
-              key !== 'Person-Nearby' && 
-              typeof value === 'object'
+              // Filter for timestamp entries (not status fields)
+              key.includes(':') && typeof value === 'object' && value !== null
             )
-            .map(([key, value]: [string, any]) => ({
-              id: key,
-              timestamp: key,
+            .map(([timestamp, value]: [string, any]) => ({
+              id: timestamp,
+              timestamp: timestamp,
               'ID Number': value['ID Number'] || 'Unknown',
-              'Hardhat': Math.random() > 0.7 ? "1" : "0", // Simulated data
-              'Vest': Math.random() > 0.6 ? "1" : "0", // Simulated data
-              'Gloves': Math.random() > 0.8 ? "1" : "0", // Simulated data
-              'Entry-Exit': Math.random() > 0.5 ? "Entry" : "Exit" // Simulated data
+              'Hardhat': value['hardhat'] || 0,
+              'Vest': value['vest'] || 0,
+              'Gloves': value['gloves'] || 0,
+              'Entry-Exit': Math.random() > 0.5 ? "Entry" : "Exit" // Still simulated for now
             }));
+
+          console.log("Processed entries:", entries);
 
           // Sort by timestamp in descending order (newest first)
           const sortedData = entries.sort((a, b) => 
             new Date(b.timestamp).getTime() - new Date(a.timestamp).getTime()
           );
 
-          // Take only the latest 10 entries
-          const latestEntries = sortedData.slice(0, 10);
+          // Take only the latest 20 entries
+          const latestEntries = sortedData.slice(0, 20);
           setDwsData(latestEntries);
         } else {
+          console.log("No data found in Firebase");
           setDwsData([]);
         }
         setLoading(false);
@@ -110,7 +113,7 @@ const DashboardView: React.FC = () => {
   useEffect(() => {
     const refreshInterval = setInterval(() => {
       if (database) {
-        console.log("Checking for updates...");
+        console.log("Auto-refresh triggered - data will update via Firebase listener");
       }
     }, 5000);
     return () => {
@@ -159,7 +162,7 @@ const DashboardView: React.FC = () => {
 
   // Get non-compliant records
   const nonCompliantRecords = filteredData.filter(record => 
-    record['Hardhat'] === "0" || record['Vest'] === "0" || record['Gloves'] === "0"
+    record['Hardhat'] === 0 || record['Vest'] === 0 || record['Gloves'] === 0
   );
 
   return (
@@ -242,21 +245,21 @@ const DashboardView: React.FC = () => {
                         <div className="font-medium text-gray-900">{entry['ID Number']}</div>
                       </td>
                       <td className="px-6 py-4 whitespace-nowrap text-center">
-                        {entry['Hardhat'] === "1" ? (
+                        {entry['Hardhat'] === 1 ? (
                           <span className="text-green-600 text-lg">✔️</span>
                         ) : (
                           <span className="text-red-600 text-lg">❌</span>
                         )}
                       </td>
                       <td className="px-6 py-4 whitespace-nowrap text-center">
-                        {entry['Vest'] === "1" ? (
+                        {entry['Vest'] === 1 ? (
                           <span className="text-green-600 text-lg">✔️</span>
                         ) : (
                           <span className="text-red-600 text-lg">❌</span>
                         )}
                       </td>
                       <td className="px-6 py-4 whitespace-nowrap text-center">
-                        {entry['Gloves'] === "1" ? (
+                        {entry['Gloves'] === 1 ? (
                           <span className="text-green-600 text-lg">✔️</span>
                         ) : (
                           <span className="text-red-600 text-lg">❌</span>
@@ -331,7 +334,7 @@ const DashboardView: React.FC = () => {
                   <span>Compliant</span>
                   <span className="font-medium">
                     {dwsData.filter(entry => 
-                      entry['Hardhat'] === "1" && entry['Vest'] === "1" && entry['Gloves'] === "1"
+                      entry['Hardhat'] === 1 && entry['Vest'] === 1 && entry['Gloves'] === 1
                     ).length} / {dwsData.length}
                   </span>
                 </div>
@@ -341,7 +344,7 @@ const DashboardView: React.FC = () => {
                     style={{
                       width: `${dwsData.length > 0 ? 
                         (dwsData.filter(entry => 
-                          entry['Hardhat'] === "1" && entry['Vest'] === "1" && entry['Gloves'] === "1"
+                          entry['Hardhat'] === 1 && entry['Vest'] === 1 && entry['Gloves'] === 1
                         ).length / dwsData.length) * 100 : 0}%`
                     }}
                   ></div>
@@ -381,7 +384,7 @@ const DashboardView: React.FC = () => {
               <div>
                 <p className="font-medium">{error ? 'Connection Error' : 'Connected to Firebase'}</p>
                 <p className="text-sm text-gray-500">
-                  {error ? 'Check your network connection' : 'Auto-refreshing every 5 seconds'}
+                  {error ? 'Check your network connection' : 'Real-time updates enabled'}
                 </p>
               </div>
             </div>
@@ -465,9 +468,9 @@ const DashboardView: React.FC = () => {
                 <tbody className="bg-white divide-y divide-gray-200">
                   {nonCompliantRecords.map(entry => {
                     const missingPPE = [];
-                    if (entry['Hardhat'] === "0") missingPPE.push("Hardhat");
-                    if (entry['Vest'] === "0") missingPPE.push("Vest");
-                    if (entry['Gloves'] === "0") missingPPE.push("Gloves");
+                    if (entry['Hardhat'] === 0) missingPPE.push("Hardhat");
+                    if (entry['Vest'] === 0) missingPPE.push("Vest");
+                    if (entry['Gloves'] === 0) missingPPE.push("Gloves");
                     
                     return (
                       <tr key={entry.id} className="hover:bg-gray-50 transition-colors">
