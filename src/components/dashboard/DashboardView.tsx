@@ -1,4 +1,3 @@
-
 import React, { useState, useEffect } from 'react';
 import { Search } from 'lucide-react';
 import { initializeApp } from 'firebase/app';
@@ -142,18 +141,47 @@ const DashboardView: React.FC = () => {
     }
   };
 
-  // Generate mock data for charts
-  const generateChartData = () => {
-    const days = ['Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat', 'Sun'];
-    return days.map(day => ({
-      day,
-      compliance: Math.floor(Math.random() * 30) + 70, // 70-100% compliance
-      entries: Math.floor(Math.random() * 20) + 10,
-      exits: Math.floor(Math.random() * 20) + 8
-    }));
+  // Generate real chart data from Firebase data
+  const generateRealChartData = () => {
+    if (dwsData.length === 0) {
+      // Return empty data if no Firebase data available
+      return [];
+    }
+
+    // Group data by date
+    const dataByDate: { [key: string]: DWSEntry[] } = {};
+    
+    dwsData.forEach(entry => {
+      const date = entry.timestamp.split(' ')[0]; // Extract date part
+      if (!dataByDate[date]) {
+        dataByDate[date] = [];
+      }
+      dataByDate[date].push(entry);
+    });
+
+    // Convert to chart data format
+    return Object.entries(dataByDate)
+      .sort(([a], [b]) => new Date(a).getTime() - new Date(b).getTime())
+      .slice(-7) // Last 7 days
+      .map(([date, entries]) => {
+        const compliantEntries = entries.filter(entry => 
+          entry.Hardhat === 1 && entry.Vest === 1 && entry.Gloves === 1
+        );
+        const complianceRate = entries.length > 0 ? Math.round((compliantEntries.length / entries.length) * 100) : 0;
+        
+        const entryCount = entries.filter(entry => entry['Entry-Exit'] === 'Entry').length;
+        const exitCount = entries.filter(entry => entry['Entry-Exit'] === 'Exit').length;
+
+        return {
+          day: new Date(date).toLocaleDateString('en', { weekday: 'short' }),
+          compliance: complianceRate,
+          entries: entryCount,
+          exits: exitCount
+        };
+      });
   };
 
-  const chartData = generateChartData();
+  const chartData = generateRealChartData();
   const chartConfig = {
     compliance: { label: "Compliance %", color: "#10b981" },
     entries: { label: "Entries", color: "#3b82f6" },
@@ -400,27 +428,33 @@ const DashboardView: React.FC = () => {
         </Card>
       </div>
 
-      {/* Analytics Charts */}
+      {/* Analytics Charts - Now using real Firebase data */}
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
         <Card>
           <CardHeader>
             <CardTitle>PPE Compliance Trend</CardTitle>
           </CardHeader>
           <CardContent>
-            <ChartContainer config={chartConfig} className="h-[300px]">
-              <LineChart data={chartData}>
-                <CartesianGrid strokeDasharray="3 3" />
-                <XAxis dataKey="day" />
-                <YAxis />
-                <ChartTooltip content={<ChartTooltipContent />} />
-                <Line 
-                  type="monotone" 
-                  dataKey="compliance" 
-                  stroke="var(--color-compliance)" 
-                  strokeWidth={2}
-                />
-              </LineChart>
-            </ChartContainer>
+            {chartData.length > 0 ? (
+              <ChartContainer config={chartConfig} className="h-[300px]">
+                <LineChart data={chartData}>
+                  <CartesianGrid strokeDasharray="3 3" />
+                  <XAxis dataKey="day" />
+                  <YAxis />
+                  <ChartTooltip content={<ChartTooltipContent />} />
+                  <Line 
+                    type="monotone" 
+                    dataKey="compliance" 
+                    stroke="var(--color-compliance)" 
+                    strokeWidth={2}
+                  />
+                </LineChart>
+              </ChartContainer>
+            ) : (
+              <div className="h-[300px] flex items-center justify-center text-gray-500">
+                No data available for chart
+              </div>
+            )}
           </CardContent>
         </Card>
 
@@ -429,16 +463,22 @@ const DashboardView: React.FC = () => {
             <CardTitle>Entries vs Exits Over Time</CardTitle>
           </CardHeader>
           <CardContent>
-            <ChartContainer config={chartConfig} className="h-[300px]">
-              <BarChart data={chartData}>
-                <CartesianGrid strokeDasharray="3 3" />
-                <XAxis dataKey="day" />
-                <YAxis />
-                <ChartTooltip content={<ChartTooltipContent />} />
-                <Bar dataKey="entries" fill="var(--color-entries)" />
-                <Bar dataKey="exits" fill="var(--color-exits)" />
-              </BarChart>
-            </ChartContainer>
+            {chartData.length > 0 ? (
+              <ChartContainer config={chartConfig} className="h-[300px]">
+                <BarChart data={chartData}>
+                  <CartesianGrid strokeDasharray="3 3" />
+                  <XAxis dataKey="day" />
+                  <YAxis />
+                  <ChartTooltip content={<ChartTooltipContent />} />
+                  <Bar dataKey="entries" fill="var(--color-entries)" />
+                  <Bar dataKey="exits" fill="var(--color-exits)" />
+                </BarChart>
+              </ChartContainer>
+            ) : (
+              <div className="h-[300px] flex items-center justify-center text-gray-500">
+                No data available for chart
+              </div>
+            )}
           </CardContent>
         </Card>
       </div>
