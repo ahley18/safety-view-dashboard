@@ -1,4 +1,3 @@
-
 import React, { useState, useEffect } from 'react';
 import { Card, CardHeader, CardTitle, CardContent } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
@@ -6,6 +5,7 @@ import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from 
 import { Alert, AlertTitle, AlertDescription } from '@/components/ui/alert';
 import { Badge } from '@/components/ui/badge';
 import { useToast } from '@/hooks/use-toast';
+import { getDatabase, ref, push, onValue, update, off } from 'firebase/database';
 
 interface ReprimandRecord {
   id: string;
@@ -13,9 +13,12 @@ interface ReprimandRecord {
   timestamp: string;
   violations: string[];
   severity: 'low' | 'medium' | 'high';
-  status: 'pending' | 'acknowledged' | 'resolved';
+  status: 'pending' | 'acknowledged' | 'resolved' | 'retraining';
   issueDate: string;
   notes?: string;
+  retrainingType?: 'safety_briefing' | 'ppe_training' | 'comprehensive_safety' | 'supervisor_meeting';
+  retrainingDate?: string;
+  retrainingCompleted?: boolean;
 }
 
 interface ReprimandSystemProps {
@@ -33,7 +36,34 @@ const ReprimandSystem: React.FC<ReprimandSystemProps> = ({ nonCompliantRecords }
   const [reprimands, setReprimands] = useState<ReprimandRecord[]>([]);
   const [selectedEmployee, setSelectedEmployee] = useState<string>('');
   const [showIssueDialog, setShowIssueDialog] = useState(false);
+  const [showRetrainingDialog, setShowRetrainingDialog] = useState(false);
+  const [selectedReprimand, setSelectedReprimand] = useState<ReprimandRecord | null>(null);
+  const [retrainingType, setRetrainingType] = useState<ReprimandRecord['retrainingType']>('safety_briefing');
   const { toast } = useToast();
+
+  const database = getDatabase();
+
+  // Load reprimands from Firebase on component mount
+  useEffect(() => {
+    const reprimandsRef = ref(database, 'reprimands');
+    
+    const listener = onValue(reprimandsRef, (snapshot) => {
+      if (snapshot.exists()) {
+        const data = snapshot.val();
+        const reprimandsList = Object.entries(data).map(([key, value]: [string, any]) => ({
+          id: key,
+          ...value
+        }));
+        setReprimands(reprimandsList);
+      } else {
+        setReprimands([]);
+      }
+    });
+
+    return () => {
+      off(reprimandsRef, 'value', listener);
+    };
+  }, [database]);
 
   // Calculate reprimand statistics by employee
   const getEmployeeStats = () => {
@@ -61,10 +91,9 @@ const ReprimandSystem: React.FC<ReprimandSystemProps> = ({ nonCompliantRecords }
     return stats;
   };
 
-  const issueReprimand = (employeeId: string, violations: string[]) => {
+  const issueReprimand = async (employeeId: string, violations: string[]) => {
     const severity = violations.length >= 3 ? 'high' : violations.length >= 2 ? 'medium' : 'low';
-    const newReprimand: ReprimandRecord = {
-      id: `reprimand-${Date.now()}`,
+    const newReprimand: Omit<ReprimandRecord, 'id'> = {
       employeeId,
       timestamp: new Date().toISOString(),
       violations,
@@ -74,28 +103,101 @@ const ReprimandSystem: React.FC<ReprimandSystemProps> = ({ nonCompliantRecords }
       notes: `PPE violations detected: ${violations.join(', ')}`
     };
 
-    setReprimands(prev => [...prev, newReprimand]);
-    toast({
-      title: "Reprimand Issued",
-      description: `Reprimand issued to ${employeeId} for ${violations.join(', ')} violations.`,
-      variant: "destructive"
-    });
-    setShowIssueDialog(false);
+    try {
+      const reprimandsRef = ref(database, 'reprimands');
+      await push(reprimandsRef, newReprimand);
+      
+      toast({
+        title: "Reprimand Issued",
+        description: `Reprimand issued to ${employeeId} for ${violations.join(', ')} violations.`,
+        variant: "destructive"
+      });
+      setShowIssueDialog(false);
+    } catch (error) {
+      console.error("Error issuing reprimand:", error);
+      toast({
+        title: "Error",
+        description: "Failed to issue reprimand. Please try again.",
+        variant: "destructive"
+      });
+    }
   };
 
-  const updateReprimandStatus = (reprimandId: string, newStatus: ReprimandRecord['status']) => {
-    setReprimands(prev => 
-      prev.map(reprimand => 
-        reprimand.id === reprimandId 
-          ? { ...reprimand, status: newStatus }
-          : reprimand
-      )
-    );
-    
-    toast({
-      title: "Status Updated",
-      description: `Reprimand status updated to ${newStatus}.`
-    });
+  const updateReprimandStatus = async (reprimandId: string, newStatus: ReprimandRecord['status']) => {
+    try {
+      const reprimandRef = ref(database, `reprimands/${reprimandId}`);
+      await update(reprimandRef, { status: newStatus });
+      
+      toast({
+        title: "Status Updated",
+        description: `Reprimand status updated to ${newStatus}.`
+      });
+    } catch (error) {
+      console.error("Error updating reprimand status:", error);
+      toast({
+        title: "Error",
+        description: "Failed to update status. Please try again.",
+        variant: "destructive"
+      });
+    }
+  };
+
+  const assignRetraining = async (reprimandId: string, type: ReprimandRecord['retrainingType']) => {
+    try {
+      const reprimandRef = ref(database, `reprimands/${reprimandId}`);
+      await update(reprimandRef, {
+        status: 'retraining',
+        retrainingType: type,
+        retrainingDate: new Date().toISOString(),
+        retrainingCompleted: false
+      });
+      
+      toast({
+        title: "Retraining Assigned",
+        description: `${getRetrainingLabel(type)} assigned successfully.`
+      });
+      setShowRetrainingDialog(false);
+      setSelectedReprimand(null);
+    } catch (error) {
+      console.error("Error assigning retraining:", error);
+      toast({
+        title: "Error",
+        description: "Failed to assign retraining. Please try again.",
+        variant: "destructive"
+      });
+    }
+  };
+
+  const markRetrainingComplete = async (reprimandId: string) => {
+    try {
+      const reprimandRef = ref(database, `reprimands/${reprimandId}`);
+      await update(reprimandRef, {
+        status: 'resolved',
+        retrainingCompleted: true
+      });
+      
+      toast({
+        title: "Retraining Completed",
+        description: "Retraining marked as completed and reprimand resolved."
+      });
+    } catch (error) {
+      console.error("Error marking retraining complete:", error);
+      toast({
+        title: "Error",
+        description: "Failed to update retraining status. Please try again.",
+        variant: "destructive"
+      });
+    }
+  };
+
+  const getRetrainingLabel = (type?: ReprimandRecord['retrainingType']) => {
+    switch (type) {
+      case 'safety_briefing': return 'Safety Briefing';
+      case 'ppe_training': return 'PPE Training';
+      case 'comprehensive_safety': return 'Comprehensive Safety Training';
+      case 'supervisor_meeting': return 'Supervisor Meeting';
+      default: return 'Unknown';
+    }
   };
 
   const getSeverityColor = (severity: ReprimandRecord['severity']) => {
@@ -112,6 +214,7 @@ const ReprimandSystem: React.FC<ReprimandSystemProps> = ({ nonCompliantRecords }
       case 'pending': return 'bg-orange-500';
       case 'acknowledged': return 'bg-blue-500';
       case 'resolved': return 'bg-green-500';
+      case 'retraining': return 'bg-purple-500';
       default: return 'bg-gray-500';
     }
   };
@@ -124,13 +227,22 @@ const ReprimandSystem: React.FC<ReprimandSystemProps> = ({ nonCompliantRecords }
   return (
     <div className="space-y-6">
       {/* Reprimand Overview */}
-      <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
+      <div className="grid grid-cols-1 md:grid-cols-5 gap-4">
         <Card>
           <CardContent className="p-4">
             <div className="text-2xl font-bold text-red-600">
               {reprimands.filter(r => r.status === 'pending').length}
             </div>
             <p className="text-sm text-gray-600">Pending Reprimands</p>
+          </CardContent>
+        </Card>
+        
+        <Card>
+          <CardContent className="p-4">
+            <div className="text-2xl font-bold text-purple-600">
+              {reprimands.filter(r => r.status === 'retraining').length}
+            </div>
+            <p className="text-sm text-gray-600">In Retraining</p>
           </CardContent>
         </Card>
         
@@ -222,6 +334,62 @@ const ReprimandSystem: React.FC<ReprimandSystemProps> = ({ nonCompliantRecords }
         </CardHeader>
       </Card>
 
+      {/* Retraining Assignment Dialog */}
+      <Dialog open={showRetrainingDialog} onOpenChange={setShowRetrainingDialog}>
+        <DialogContent>
+          <DialogHeader>
+            <DialogTitle>Assign Retraining</DialogTitle>
+          </DialogHeader>
+          <div className="space-y-4">
+            <div>
+              <p className="text-sm text-gray-600 mb-2">
+                Employee: <strong>{selectedReprimand?.employeeId}</strong>
+              </p>
+              <p className="text-sm text-gray-600 mb-4">
+                Violations: {selectedReprimand?.violations.join(', ')}
+              </p>
+            </div>
+            
+            <div>
+              <label className="block text-sm font-medium mb-2">Retraining Type</label>
+              <select 
+                value={retrainingType || 'safety_briefing'} 
+                onChange={(e) => setRetrainingType(e.target.value as ReprimandRecord['retrainingType'])}
+                className="w-full border rounded px-3 py-2"
+              >
+                <option value="safety_briefing">Safety Briefing (1 hour)</option>
+                <option value="ppe_training">PPE Training (2 hours)</option>
+                <option value="comprehensive_safety">Comprehensive Safety Training (4 hours)</option>
+                <option value="supervisor_meeting">Supervisor Meeting</option>
+              </select>
+            </div>
+            
+            <div className="flex gap-2">
+              <Button 
+                onClick={() => {
+                  if (selectedReprimand && retrainingType) {
+                    assignRetraining(selectedReprimand.id, retrainingType);
+                  }
+                }}
+                className="flex-1"
+              >
+                Assign Retraining
+              </Button>
+              <Button 
+                variant="outline" 
+                onClick={() => {
+                  setShowRetrainingDialog(false);
+                  setSelectedReprimand(null);
+                }}
+                className="flex-1"
+              >
+                Cancel
+              </Button>
+            </div>
+          </div>
+        </DialogContent>
+      </Dialog>
+
       {/* High Risk Employees */}
       {highRiskEmployees.length > 0 && (
         <Card>
@@ -278,6 +446,9 @@ const ReprimandSystem: React.FC<ReprimandSystemProps> = ({ nonCompliantRecords }
                       Status
                     </th>
                     <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">
+                      Retraining
+                    </th>
+                    <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">
                       Actions
                     </th>
                   </tr>
@@ -311,7 +482,21 @@ const ReprimandSystem: React.FC<ReprimandSystemProps> = ({ nonCompliantRecords }
                         </Badge>
                       </td>
                       <td className="px-6 py-4 whitespace-nowrap text-sm">
-                        <div className="flex gap-2">
+                        {reprimand.retrainingType ? (
+                          <div>
+                            <p className="font-medium">{getRetrainingLabel(reprimand.retrainingType)}</p>
+                            {reprimand.retrainingCompleted ? (
+                              <Badge className="bg-green-500 text-white text-xs">Completed</Badge>
+                            ) : (
+                              <Badge className="bg-yellow-500 text-white text-xs">In Progress</Badge>
+                            )}
+                          </div>
+                        ) : (
+                          <span className="text-gray-400">-</span>
+                        )}
+                      </td>
+                      <td className="px-6 py-4 whitespace-nowrap text-sm">
+                        <div className="flex gap-2 flex-wrap">
                           {reprimand.status === 'pending' && (
                             <>
                               <Button
@@ -323,6 +508,16 @@ const ReprimandSystem: React.FC<ReprimandSystemProps> = ({ nonCompliantRecords }
                               </Button>
                               <Button
                                 size="sm"
+                                className="bg-purple-500 hover:bg-purple-600"
+                                onClick={() => {
+                                  setSelectedReprimand(reprimand);
+                                  setShowRetrainingDialog(true);
+                                }}
+                              >
+                                Assign Retraining
+                              </Button>
+                              <Button
+                                size="sm"
                                 onClick={() => updateReprimandStatus(reprimand.id, 'resolved')}
                               >
                                 Resolve
@@ -330,11 +525,32 @@ const ReprimandSystem: React.FC<ReprimandSystemProps> = ({ nonCompliantRecords }
                             </>
                           )}
                           {reprimand.status === 'acknowledged' && (
+                            <>
+                              <Button
+                                size="sm"
+                                className="bg-purple-500 hover:bg-purple-600"
+                                onClick={() => {
+                                  setSelectedReprimand(reprimand);
+                                  setShowRetrainingDialog(true);
+                                }}
+                              >
+                                Assign Retraining
+                              </Button>
+                              <Button
+                                size="sm"
+                                onClick={() => updateReprimandStatus(reprimand.id, 'resolved')}
+                              >
+                                Resolve
+                              </Button>
+                            </>
+                          )}
+                          {reprimand.status === 'retraining' && !reprimand.retrainingCompleted && (
                             <Button
                               size="sm"
-                              onClick={() => updateReprimandStatus(reprimand.id, 'resolved')}
+                              className="bg-green-500 hover:bg-green-600"
+                              onClick={() => markRetrainingComplete(reprimand.id)}
                             >
-                              Resolve
+                              Mark Complete
                             </Button>
                           )}
                         </div>
