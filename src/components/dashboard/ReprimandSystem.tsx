@@ -2,10 +2,11 @@ import React, { useState, useEffect } from 'react';
 import { Card, CardHeader, CardTitle, CardContent } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from '@/components/ui/dialog';
+import { AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle, AlertDialogTrigger } from '@/components/ui/alert-dialog';
 import { Alert, AlertTitle, AlertDescription } from '@/components/ui/alert';
 import { Badge } from '@/components/ui/badge';
 import { useToast } from '@/hooks/use-toast';
-import { getDatabase, ref, push, onValue, update, off } from 'firebase/database';
+import { getDatabase, ref, push, onValue, update, off, remove } from 'firebase/database';
 
 interface ReprimandRecord {
   id: string;
@@ -185,6 +186,26 @@ const ReprimandSystem: React.FC<ReprimandSystemProps> = ({ nonCompliantRecords }
       toast({
         title: "Error",
         description: "Failed to update retraining status. Please try again.",
+        variant: "destructive"
+      });
+    }
+  };
+
+  const deleteReprimand = async (reprimandId: string) => {
+    try {
+      const reprimandRef = ref(database, `reprimands/${reprimandId}`);
+      await remove(reprimandRef);
+      
+      toast({
+        title: "Reprimand Deleted",
+        description: "Reprimand has been successfully deleted.",
+        variant: "destructive"
+      });
+    } catch (error) {
+      console.error("Error deleting reprimand:", error);
+      toast({
+        title: "Error",
+        description: "Failed to delete reprimand. Please try again.",
         variant: "destructive"
       });
     }
@@ -553,6 +574,34 @@ const ReprimandSystem: React.FC<ReprimandSystemProps> = ({ nonCompliantRecords }
                               Mark Complete
                             </Button>
                           )}
+                          <AlertDialog>
+                            <AlertDialogTrigger asChild>
+                              <Button
+                                size="sm"
+                                variant="destructive"
+                              >
+                                Delete
+                              </Button>
+                            </AlertDialogTrigger>
+                            <AlertDialogContent>
+                              <AlertDialogHeader>
+                                <AlertDialogTitle>Delete Reprimand</AlertDialogTitle>
+                                <AlertDialogDescription>
+                                  Are you sure you want to delete this reprimand for {reprimand.employeeId}? 
+                                  This action cannot be undone.
+                                </AlertDialogDescription>
+                              </AlertDialogHeader>
+                              <AlertDialogFooter>
+                                <AlertDialogCancel>Cancel</AlertDialogCancel>
+                                <AlertDialogAction
+                                  onClick={() => deleteReprimand(reprimand.id)}
+                                  className="bg-destructive text-destructive-foreground hover:bg-destructive/90"
+                                >
+                                  Delete
+                                </AlertDialogAction>
+                              </AlertDialogFooter>
+                            </AlertDialogContent>
+                          </AlertDialog>
                         </div>
                       </td>
                     </tr>
