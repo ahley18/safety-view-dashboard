@@ -5,7 +5,7 @@ import { getDatabase, ref, onValue, off, Database } from 'firebase/database';
 import { Alert, AlertTitle, AlertDescription } from '@/components/ui/alert';
 import { Card, CardHeader, CardTitle, CardContent } from '@/components/ui/card';
 import { ChartContainer, ChartTooltip, ChartTooltipContent } from '@/components/ui/chart';
-import { LineChart, Line, BarChart, Bar, XAxis, YAxis, CartesianGrid, ResponsiveContainer } from 'recharts';
+import { LineChart, Line, BarChart, Bar, XAxis, YAxis, CartesianGrid, ResponsiveContainer, PieChart, Pie, Cell, AreaChart, Area } from 'recharts';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import ReprimandSystem from './ReprimandSystem';
 
@@ -195,6 +195,53 @@ const DashboardView: React.FC = () => {
     record['Hardhat'] === 0 || record['Vest'] === 0 || record['Gloves'] === 0
   );
 
+  // Generate PPE breakdown data for pie chart
+  const generatePPEBreakdownData = () => {
+    if (dwsData.length === 0) return [];
+    
+    const hardhatCompliant = dwsData.filter(entry => entry.Hardhat === 1).length;
+    const vestCompliant = dwsData.filter(entry => entry.Vest === 1).length;
+    const glovesCompliant = dwsData.filter(entry => entry.Gloves === 1).length;
+    
+    return [
+      { name: 'Hardhat', value: hardhatCompliant, color: '#10b981' },
+      { name: 'Vest', value: vestCompliant, color: '#3b82f6' },
+      { name: 'Gloves', value: glovesCompliant, color: '#8b5cf6' }
+    ];
+  };
+
+  // Generate hourly activity data
+  const generateHourlyActivityData = () => {
+    if (dwsData.length === 0) return [];
+    
+    const hourlyData: { [key: string]: { entries: number; exits: number } } = {};
+    
+    dwsData.forEach(entry => {
+      const hour = entry.timestamp.split(' ')[1]?.split(':')[0] || '00';
+      if (!hourlyData[hour]) {
+        hourlyData[hour] = { entries: 0, exits: 0 };
+      }
+      
+      if (entry['Entry-Exit'] === 'Entry') {
+        hourlyData[hour].entries++;
+      } else if (entry['Entry-Exit'] === 'Exit') {
+        hourlyData[hour].exits++;
+      }
+    });
+    
+    return Object.entries(hourlyData)
+      .map(([hour, data]) => ({
+        hour: `${hour}:00`,
+        entries: data.entries,
+        exits: data.exits,
+        total: data.entries + data.exits
+      }))
+      .sort((a, b) => parseInt(a.hour) - parseInt(b.hour));
+  };
+
+  const ppeBreakdownData = generatePPEBreakdownData();
+  const hourlyActivityData = generateHourlyActivityData();
+
   // Download data as CSV
   const downloadData = () => {
     try {
@@ -311,6 +358,9 @@ const DashboardView: React.FC = () => {
                           ID Number
                         </th>
                         <th scope="col" className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                          Entry/Exit
+                        </th>
+                        <th scope="col" className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
                           Hardhat
                         </th>
                         <th scope="col" className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
@@ -329,6 +379,15 @@ const DashboardView: React.FC = () => {
                           </td>
                           <td className="px-6 py-4 whitespace-nowrap">
                             <div className="font-medium text-gray-900">{entry['ID Number']}</div>
+                          </td>
+                          <td className="px-6 py-4 whitespace-nowrap">
+                            <span className={`inline-flex px-2 py-1 text-xs font-semibold rounded-full ${
+                              entry['Entry-Exit'] === 'Entry' 
+                                ? 'bg-green-100 text-green-800' 
+                                : 'bg-blue-100 text-blue-800'
+                            }`}>
+                              {entry['Entry-Exit'] || 'Unknown'}
+                            </span>
                           </td>
                           <td className="px-6 py-4 whitespace-nowrap text-center">
                             {entry['Hardhat'] === 1 ? (
@@ -364,6 +423,7 @@ const DashboardView: React.FC = () => {
             </div>
           </div>
           
+          {/* Statistics Cards */}
           <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
             <Card>
               <CardHeader>
@@ -486,7 +546,7 @@ const DashboardView: React.FC = () => {
             </Card>
           </div>
 
-          {/* Analytics Charts - Now using real Firebase data */}
+          {/* Analytics Charts */}
           <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
             <Card>
               <CardHeader>
@@ -494,22 +554,24 @@ const DashboardView: React.FC = () => {
               </CardHeader>
               <CardContent>
                 {chartData.length > 0 ? (
-                  <ChartContainer config={chartConfig} className="h-[300px]">
-                    <LineChart data={chartData}>
-                      <CartesianGrid strokeDasharray="3 3" />
-                      <XAxis dataKey="day" />
-                      <YAxis />
-                      <ChartTooltip content={<ChartTooltipContent />} />
-                      <Line 
-                        type="monotone" 
-                        dataKey="compliance" 
-                        stroke="var(--color-compliance)" 
-                        strokeWidth={2}
-                      />
-                    </LineChart>
+                  <ChartContainer config={chartConfig} className="h-[350px] w-full">
+                    <ResponsiveContainer width="100%" height="100%">
+                      <LineChart data={chartData} margin={{ top: 5, right: 30, left: 20, bottom: 5 }}>
+                        <CartesianGrid strokeDasharray="3 3" />
+                        <XAxis dataKey="day" />
+                        <YAxis />
+                        <ChartTooltip content={<ChartTooltipContent />} />
+                        <Line 
+                          type="monotone" 
+                          dataKey="compliance" 
+                          stroke="var(--color-compliance)" 
+                          strokeWidth={2}
+                        />
+                      </LineChart>
+                    </ResponsiveContainer>
                   </ChartContainer>
                 ) : (
-                  <div className="h-[300px] flex items-center justify-center text-gray-500">
+                  <div className="h-[350px] flex items-center justify-center text-gray-500">
                     No data available for chart
                   </div>
                 )}
@@ -522,15 +584,103 @@ const DashboardView: React.FC = () => {
               </CardHeader>
               <CardContent>
                 {chartData.length > 0 ? (
-                  <ChartContainer config={chartConfig} className="h-[300px]">
-                    <BarChart data={chartData}>
-                      <CartesianGrid strokeDasharray="3 3" />
-                      <XAxis dataKey="day" />
-                      <YAxis />
-                      <ChartTooltip content={<ChartTooltipContent />} />
-                      <Bar dataKey="entries" fill="var(--color-entries)" />
-                      <Bar dataKey="exits" fill="var(--color-exits)" />
-                    </BarChart>
+                  <ChartContainer config={chartConfig} className="h-[350px] w-full">
+                    <ResponsiveContainer width="100%" height="100%">
+                      <BarChart data={chartData} margin={{ top: 5, right: 30, left: 20, bottom: 5 }}>
+                        <CartesianGrid strokeDasharray="3 3" />
+                        <XAxis dataKey="day" />
+                        <YAxis />
+                        <ChartTooltip content={<ChartTooltipContent />} />
+                        <Bar dataKey="entries" fill="var(--color-entries)" />
+                        <Bar dataKey="exits" fill="var(--color-exits)" />
+                      </BarChart>
+                    </ResponsiveContainer>
+                  </ChartContainer>
+                ) : (
+                  <div className="h-[350px] flex items-center justify-center text-gray-500">
+                    No data available for chart
+                  </div>
+                )}
+              </CardContent>
+            </Card>
+          </div>
+
+          {/* Additional Statistical Charts */}
+          <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
+            <Card>
+              <CardHeader>
+                <CardTitle>PPE Equipment Compliance</CardTitle>
+              </CardHeader>
+              <CardContent>
+                {ppeBreakdownData.length > 0 ? (
+                  <ChartContainer config={chartConfig} className="h-[300px] w-full">
+                    <ResponsiveContainer width="100%" height="100%">
+                      <PieChart>
+                        <Pie
+                          data={ppeBreakdownData}
+                          cx="50%"
+                          cy="50%"
+                          labelLine={false}
+                          label={({ name, value }) => `${name}: ${value}`}
+                          outerRadius={80}
+                          fill="#8884d8"
+                          dataKey="value"
+                        >
+                          {ppeBreakdownData.map((entry, index) => (
+                            <Cell key={`cell-${index}`} fill={entry.color} />
+                          ))}
+                        </Pie>
+                        <ChartTooltip content={<ChartTooltipContent />} />
+                      </PieChart>
+                    </ResponsiveContainer>
+                  </ChartContainer>
+                ) : (
+                  <div className="h-[300px] flex items-center justify-center text-gray-500">
+                    No data available for chart
+                  </div>
+                )}
+              </CardContent>
+            </Card>
+
+            <Card className="lg:col-span-2">
+              <CardHeader>
+                <CardTitle>Hourly Activity Distribution</CardTitle>
+              </CardHeader>
+              <CardContent>
+                {hourlyActivityData.length > 0 ? (
+                  <ChartContainer config={chartConfig} className="h-[300px] w-full">
+                    <ResponsiveContainer width="100%" height="100%">
+                      <AreaChart data={hourlyActivityData} margin={{ top: 5, right: 30, left: 20, bottom: 5 }}>
+                        <CartesianGrid strokeDasharray="3 3" />
+                        <XAxis dataKey="hour" />
+                        <YAxis />
+                        <ChartTooltip content={<ChartTooltipContent />} />
+                        <Area 
+                          type="monotone" 
+                          dataKey="total" 
+                          stackId="1" 
+                          stroke="#8884d8" 
+                          fill="#8884d8" 
+                          fillOpacity={0.6}
+                        />
+                        <Area 
+                          type="monotone" 
+                          dataKey="entries" 
+                          stackId="2" 
+                          stroke="var(--color-entries)" 
+                          fill="var(--color-entries)" 
+                          fillOpacity={0.8}
+                        />
+                        <Area 
+                          type="monotone" 
+                          dataKey="exits" 
+                          stackId="3" 
+                          stroke="var(--color-exits)" 
+                          fill="var(--color-exits)" 
+                          fillOpacity={0.8}
+                        />
+                      </AreaChart>
+                    </ResponsiveContainer>
                   </ChartContainer>
                 ) : (
                   <div className="h-[300px] flex items-center justify-center text-gray-500">
