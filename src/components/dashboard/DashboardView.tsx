@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { Search } from 'lucide-react';
+import { Search, Download } from 'lucide-react';
 import { initializeApp } from 'firebase/app';
 import { getDatabase, ref, onValue, off, Database } from 'firebase/database';
 import { Alert, AlertTitle, AlertDescription } from '@/components/ui/alert';
@@ -195,6 +195,46 @@ const DashboardView: React.FC = () => {
     record['Hardhat'] === 0 || record['Vest'] === 0 || record['Gloves'] === 0
   );
 
+  // Download data as CSV
+  const downloadData = () => {
+    try {
+      // Prepare CSV headers
+      const headers = ['Timestamp', 'ID Number', 'Hardhat', 'Vest', 'Gloves', 'Entry-Exit'];
+      
+      // Prepare CSV rows
+      const csvRows = [
+        headers.join(','),
+        ...filteredData.map(entry => [
+          `"${formatTimestamp(entry.timestamp)}"`,
+          `"${entry['ID Number']}"`,
+          entry['Hardhat'] === 1 ? 'Yes' : 'No',
+          entry['Vest'] === 1 ? 'Yes' : 'No',
+          entry['Gloves'] === 1 ? 'Yes' : 'No',
+          `"${entry['Entry-Exit'] || 'Unknown'}"`
+        ].join(','))
+      ];
+
+      // Create CSV content
+      const csvContent = csvRows.join('\n');
+      
+      // Create and download file
+      const blob = new Blob([csvContent], { type: 'text/csv;charset=utf-8;' });
+      const link = document.createElement('a');
+      const url = URL.createObjectURL(blob);
+      link.setAttribute('href', url);
+      link.setAttribute('download', `ppe-monitoring-data-${new Date().toISOString().split('T')[0]}.csv`);
+      link.style.visibility = 'hidden';
+      document.body.appendChild(link);
+      link.click();
+      document.body.removeChild(link);
+      
+      console.log("Data downloaded successfully");
+    } catch (error) {
+      console.error("Error downloading data:", error);
+      setError("Failed to download data. Please try again.");
+    }
+  };
+
   return (
     <div className="space-y-6">
       <div className="flex flex-col md:flex-row justify-between items-start md:items-center gap-4">
@@ -224,6 +264,15 @@ const DashboardView: React.FC = () => {
             <option value="entry">Entries Only</option>
             <option value="exit">Exits Only</option>
           </select>
+
+          <button
+            onClick={downloadData}
+            className="flex items-center gap-2 px-4 py-2 bg-green-600 hover:bg-green-700 text-white rounded-lg transition-colors"
+            disabled={filteredData.length === 0}
+          >
+            <Download size={18} />
+            <span className="hidden md:inline">Download CSV</span>
+          </button>
         </div>
       </div>
       
