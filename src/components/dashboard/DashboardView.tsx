@@ -282,34 +282,6 @@ const DashboardView: React.FC = () => {
     }
   };
 
-  // Generate compliance by worker data
-  const generateComplianceByWorkerData = () => {
-    if (dwsData.length === 0) return [];
-    
-    const workerData: { [key: string]: { total: number; compliant: number } } = {};
-    
-    dwsData.forEach(entry => {
-      const workerId = entry['ID Number'];
-      if (!workerData[workerId]) {
-        workerData[workerId] = { total: 0, compliant: 0 };
-      }
-      workerData[workerId].total++;
-      if (entry.Hardhat === 1 && entry.Vest === 1 && entry.Gloves === 1) {
-        workerData[workerId].compliant++;
-      }
-    });
-    
-    return Object.entries(workerData)
-      .map(([workerId, data]) => ({
-        worker: workerId,
-        compliance: Math.round((data.compliant / data.total) * 100),
-        violations: data.total - data.compliant,
-        total: data.total
-      }))
-      .sort((a, b) => b.compliance - a.compliance)
-      .slice(0, 10); // Top 10 workers
-  };
-
   // Generate violation patterns data
   const generateViolationPatternsData = () => {
     if (dwsData.length === 0) return [];
@@ -413,10 +385,39 @@ const DashboardView: React.FC = () => {
     }));
   };
 
-  const complianceByWorkerData = generateComplianceByWorkerData();
   const violationPatternsData = generateViolationPatternsData();
   const dailySummaryData = generateDailySummaryData();
   const timeBasedComplianceData = generateTimeBasedComplianceData();
+
+  // Generate compliance vs violation data for donut chart
+  const generateComplianceViolationData = () => {
+    if (dwsData.length === 0) return [];
+    
+    const compliantRecords = dwsData.filter(entry => 
+      entry.Hardhat === 1 && entry.Vest === 1 && entry.Gloves === 1
+    ).length;
+    const violationRecords = dwsData.length - compliantRecords;
+    
+    const compliantPercentage = Math.round((compliantRecords / dwsData.length) * 100);
+    const violationPercentage = Math.round((violationRecords / dwsData.length) * 100);
+    
+    return [
+      { 
+        name: 'Compliant', 
+        value: compliantRecords, 
+        percentage: compliantPercentage,
+        color: '#10b981' 
+      },
+      { 
+        name: 'Violations', 
+        value: violationRecords, 
+        percentage: violationPercentage,
+        color: '#ef4444' 
+      }
+    ];
+  };
+
+  const complianceViolationData = generateComplianceViolationData();
 
   return (
     <div className="space-y-6">
@@ -827,23 +828,33 @@ const DashboardView: React.FC = () => {
             </Card>
           </div>
 
-          {/* New Advanced Analytics Section */}
+          {/* Compliance vs Violations Analysis */}
           <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
             <Card>
               <CardHeader>
-                <CardTitle>Top Workers by Compliance</CardTitle>
+                <CardTitle>Compliance vs Violations</CardTitle>
               </CardHeader>
               <CardContent>
-                {complianceByWorkerData.length > 0 ? (
+                {complianceViolationData.length > 0 ? (
                   <ChartContainer config={chartConfig} className="h-[350px] w-full">
                     <ResponsiveContainer width="100%" height="100%">
-                      <BarChart data={complianceByWorkerData} layout="horizontal" margin={{ top: 5, right: 30, left: 20, bottom: 5 }}>
-                        <CartesianGrid strokeDasharray="3 3" />
-                        <XAxis type="number" domain={[0, 100]} />
-                        <YAxis dataKey="worker" type="category" width={80} />
+                      <PieChart>
+                        <Pie
+                          data={complianceViolationData}
+                          cx="50%"
+                          cy="50%"
+                          labelLine={false}
+                          label={({ name, percentage }) => `${name}: ${percentage}%`}
+                          outerRadius={100}
+                          fill="#8884d8"
+                          dataKey="value"
+                        >
+                          {complianceViolationData.map((entry, index) => (
+                            <Cell key={`cell-${index}`} fill={entry.color} />
+                          ))}
+                        </Pie>
                         <ChartTooltip content={<ChartTooltipContent />} />
-                        <Bar dataKey="compliance" fill="var(--color-compliance)" />
-                      </BarChart>
+                      </PieChart>
                     </ResponsiveContainer>
                   </ChartContainer>
                 ) : (
@@ -854,40 +865,7 @@ const DashboardView: React.FC = () => {
               </CardContent>
             </Card>
 
-            <Card>
-              <CardHeader>
-                <CardTitle>Violation Patterns</CardTitle>
-              </CardHeader>
-              <CardContent>
-                {violationPatternsData.length > 0 ? (
-                  <ChartContainer config={chartConfig} className="h-[350px] w-full">
-                    <ResponsiveContainer width="100%" height="100%">
-                      <PieChart>
-                        <Pie
-                          data={violationPatternsData}
-                          cx="50%"
-                          cy="50%"
-                          labelLine={false}
-                          label={({ pattern, percentage }) => `${pattern}: ${percentage}%`}
-                          outerRadius={100}
-                          fill="#8884d8"
-                          dataKey="count"
-                        >
-                          {violationPatternsData.map((entry, index) => (
-                            <Cell key={`cell-${index}`} fill={`hsl(${index * 45}, 70%, 50%)`} />
-                          ))}
-                        </Pie>
-                        <ChartTooltip content={<ChartTooltipContent />} />
-                      </PieChart>
-                    </ResponsiveContainer>
-                  </ChartContainer>
-                ) : (
-                  <div className="h-[350px] flex items-center justify-center text-gray-500">
-                    No violations found
-                  </div>
-                )}
-              </CardContent>
-            </Card>
+            <div></div>
           </div>
 
           {/* Daily Trends and Time-based Analysis */}
