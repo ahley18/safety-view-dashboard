@@ -282,6 +282,142 @@ const DashboardView: React.FC = () => {
     }
   };
 
+  // Generate compliance by worker data
+  const generateComplianceByWorkerData = () => {
+    if (dwsData.length === 0) return [];
+    
+    const workerData: { [key: string]: { total: number; compliant: number } } = {};
+    
+    dwsData.forEach(entry => {
+      const workerId = entry['ID Number'];
+      if (!workerData[workerId]) {
+        workerData[workerId] = { total: 0, compliant: 0 };
+      }
+      workerData[workerId].total++;
+      if (entry.Hardhat === 1 && entry.Vest === 1 && entry.Gloves === 1) {
+        workerData[workerId].compliant++;
+      }
+    });
+    
+    return Object.entries(workerData)
+      .map(([workerId, data]) => ({
+        worker: workerId,
+        compliance: Math.round((data.compliant / data.total) * 100),
+        violations: data.total - data.compliant,
+        total: data.total
+      }))
+      .sort((a, b) => b.compliance - a.compliance)
+      .slice(0, 10); // Top 10 workers
+  };
+
+  // Generate violation patterns data
+  const generateViolationPatternsData = () => {
+    if (dwsData.length === 0) return [];
+    
+    const violations = {
+      'Hardhat Only': 0,
+      'Vest Only': 0,
+      'Gloves Only': 0,
+      'Hardhat + Vest': 0,
+      'Hardhat + Gloves': 0,
+      'Vest + Gloves': 0,
+      'All Missing': 0
+    };
+    
+    dwsData.forEach(entry => {
+      const missingItems = [];
+      if (entry.Hardhat === 0) missingItems.push('Hardhat');
+      if (entry.Vest === 0) missingItems.push('Vest');
+      if (entry.Gloves === 0) missingItems.push('Gloves');
+      
+      if (missingItems.length === 1) {
+        violations[`${missingItems[0]} Only`]++;
+      } else if (missingItems.length === 2) {
+        violations[`${missingItems[0]} + ${missingItems[1]}`]++;
+      } else if (missingItems.length === 3) {
+        violations['All Missing']++;
+      }
+    });
+    
+    return Object.entries(violations)
+      .filter(([_, count]) => count > 0)
+      .map(([pattern, count]) => ({
+        pattern,
+        count,
+        percentage: Math.round((count / dwsData.length) * 100)
+      }));
+  };
+
+  // Generate daily summary data
+  const generateDailySummaryData = () => {
+    if (dwsData.length === 0) return [];
+    
+    const dailyData: { [key: string]: { entries: number; exits: number; violations: number; total: number } } = {};
+    
+    dwsData.forEach(entry => {
+      const date = entry.timestamp.split(' ')[0];
+      if (!dailyData[date]) {
+        dailyData[date] = { entries: 0, exits: 0, violations: 0, total: 0 };
+      }
+      
+      dailyData[date].total++;
+      if (entry['Entry-Exit'] === 'Entry') dailyData[date].entries++;
+      if (entry['Entry-Exit'] === 'Exit') dailyData[date].exits++;
+      if (entry.Hardhat === 0 || entry.Vest === 0 || entry.Gloves === 0) {
+        dailyData[date].violations++;
+      }
+    });
+    
+    return Object.entries(dailyData)
+      .sort(([a], [b]) => new Date(a).getTime() - new Date(b).getTime())
+      .slice(-14) // Last 14 days
+      .map(([date, data]) => ({
+        date: new Date(date).toLocaleDateString('en', { month: 'short', day: 'numeric' }),
+        entries: data.entries,
+        exits: data.exits,
+        violations: data.violations,
+        compliance: data.total > 0 ? Math.round(((data.total - data.violations) / data.total) * 100) : 0
+      }));
+  };
+
+  // Generate time-based compliance data
+  const generateTimeBasedComplianceData = () => {
+    if (dwsData.length === 0) return [];
+    
+    const timeSlots = {
+      'Morning (6-12)': { total: 0, compliant: 0 },
+      'Afternoon (12-18)': { total: 0, compliant: 0 },
+      'Evening (18-24)': { total: 0, compliant: 0 },
+      'Night (0-6)': { total: 0, compliant: 0 }
+    };
+    
+    dwsData.forEach(entry => {
+      const hour = parseInt(entry.timestamp.split(' ')[1]?.split(':')[0] || '0');
+      let timeSlot = 'Morning (6-12)';
+      
+      if (hour >= 12 && hour < 18) timeSlot = 'Afternoon (12-18)';
+      else if (hour >= 18 && hour < 24) timeSlot = 'Evening (18-24)';
+      else if (hour >= 0 && hour < 6) timeSlot = 'Night (0-6)';
+      
+      timeSlots[timeSlot as keyof typeof timeSlots].total++;
+      if (entry.Hardhat === 1 && entry.Vest === 1 && entry.Gloves === 1) {
+        timeSlots[timeSlot as keyof typeof timeSlots].compliant++;
+      }
+    });
+    
+    return Object.entries(timeSlots).map(([timeSlot, data]) => ({
+      timeSlot,
+      compliance: data.total > 0 ? Math.round((data.compliant / data.total) * 100) : 0,
+      total: data.total,
+      violations: data.total - data.compliant
+    }));
+  };
+
+  const complianceByWorkerData = generateComplianceByWorkerData();
+  const violationPatternsData = generateViolationPatternsData();
+  const dailySummaryData = generateDailySummaryData();
+  const timeBasedComplianceData = generateTimeBasedComplianceData();
+
   return (
     <div className="space-y-6">
       <div className="flex flex-col md:flex-row justify-between items-start md:items-center gap-4">
@@ -680,6 +816,127 @@ const DashboardView: React.FC = () => {
                           fillOpacity={0.8}
                         />
                       </AreaChart>
+                    </ResponsiveContainer>
+                  </ChartContainer>
+                ) : (
+                  <div className="h-[300px] flex items-center justify-center text-gray-500">
+                    No data available for chart
+                  </div>
+                )}
+              </CardContent>
+            </Card>
+          </div>
+
+          {/* New Advanced Analytics Section */}
+          <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+            <Card>
+              <CardHeader>
+                <CardTitle>Top Workers by Compliance</CardTitle>
+              </CardHeader>
+              <CardContent>
+                {complianceByWorkerData.length > 0 ? (
+                  <ChartContainer config={chartConfig} className="h-[350px] w-full">
+                    <ResponsiveContainer width="100%" height="100%">
+                      <BarChart data={complianceByWorkerData} layout="horizontal" margin={{ top: 5, right: 30, left: 20, bottom: 5 }}>
+                        <CartesianGrid strokeDasharray="3 3" />
+                        <XAxis type="number" domain={[0, 100]} />
+                        <YAxis dataKey="worker" type="category" width={80} />
+                        <ChartTooltip content={<ChartTooltipContent />} />
+                        <Bar dataKey="compliance" fill="var(--color-compliance)" />
+                      </BarChart>
+                    </ResponsiveContainer>
+                  </ChartContainer>
+                ) : (
+                  <div className="h-[350px] flex items-center justify-center text-gray-500">
+                    No data available for chart
+                  </div>
+                )}
+              </CardContent>
+            </Card>
+
+            <Card>
+              <CardHeader>
+                <CardTitle>Violation Patterns</CardTitle>
+              </CardHeader>
+              <CardContent>
+                {violationPatternsData.length > 0 ? (
+                  <ChartContainer config={chartConfig} className="h-[350px] w-full">
+                    <ResponsiveContainer width="100%" height="100%">
+                      <PieChart>
+                        <Pie
+                          data={violationPatternsData}
+                          cx="50%"
+                          cy="50%"
+                          labelLine={false}
+                          label={({ pattern, percentage }) => `${pattern}: ${percentage}%`}
+                          outerRadius={100}
+                          fill="#8884d8"
+                          dataKey="count"
+                        >
+                          {violationPatternsData.map((entry, index) => (
+                            <Cell key={`cell-${index}`} fill={`hsl(${index * 45}, 70%, 50%)`} />
+                          ))}
+                        </Pie>
+                        <ChartTooltip content={<ChartTooltipContent />} />
+                      </PieChart>
+                    </ResponsiveContainer>
+                  </ChartContainer>
+                ) : (
+                  <div className="h-[350px] flex items-center justify-center text-gray-500">
+                    No violations found
+                  </div>
+                )}
+              </CardContent>
+            </Card>
+          </div>
+
+          {/* Daily Trends and Time-based Analysis */}
+          <div className="grid grid-cols-1 gap-6">
+            <Card>
+              <CardHeader>
+                <CardTitle>Daily Summary Trends (Last 14 Days)</CardTitle>
+              </CardHeader>
+              <CardContent>
+                {dailySummaryData.length > 0 ? (
+                  <ChartContainer config={chartConfig} className="h-[400px] w-full">
+                    <ResponsiveContainer width="100%" height="100%">
+                      <LineChart data={dailySummaryData} margin={{ top: 5, right: 30, left: 20, bottom: 5 }}>
+                        <CartesianGrid strokeDasharray="3 3" />
+                        <XAxis dataKey="date" />
+                        <YAxis yAxisId="left" />
+                        <YAxis yAxisId="right" orientation="right" />
+                        <ChartTooltip content={<ChartTooltipContent />} />
+                        <Bar yAxisId="left" dataKey="entries" fill="var(--color-entries)" />
+                        <Bar yAxisId="left" dataKey="exits" fill="var(--color-exits)" />
+                        <Line yAxisId="right" type="monotone" dataKey="compliance" stroke="var(--color-compliance)" strokeWidth={3} />
+                        <Line yAxisId="left" type="monotone" dataKey="violations" stroke="#ef4444" strokeWidth={2} strokeDasharray="5 5" />
+                      </LineChart>
+                    </ResponsiveContainer>
+                  </ChartContainer>
+                ) : (
+                  <div className="h-[400px] flex items-center justify-center text-gray-500">
+                    No data available for chart
+                  </div>
+                )}
+              </CardContent>
+            </Card>
+
+            <Card>
+              <CardHeader>
+                <CardTitle>Compliance by Time of Day</CardTitle>
+              </CardHeader>
+              <CardContent>
+                {timeBasedComplianceData.length > 0 ? (
+                  <ChartContainer config={chartConfig} className="h-[300px] w-full">
+                    <ResponsiveContainer width="100%" height="100%">
+                      <BarChart data={timeBasedComplianceData} margin={{ top: 5, right: 30, left: 20, bottom: 5 }}>
+                        <CartesianGrid strokeDasharray="3 3" />
+                        <XAxis dataKey="timeSlot" />
+                        <YAxis />
+                        <ChartTooltip content={<ChartTooltipContent />} />
+                        <Bar dataKey="compliance" fill="var(--color-compliance)" />
+                        <Bar dataKey="violations" fill="#ef4444" />
+                      </BarChart>
                     </ResponsiveContainer>
                   </ChartContainer>
                 ) : (
