@@ -68,15 +68,25 @@ const DashboardView: React.FC = () => {
               // Filter for timestamp entries (not status fields)
               key.includes(':') && typeof value === 'object' && value !== null
             )
-            .map(([timestamp, value]: [string, any]) => ({
-              id: timestamp,
-              timestamp: timestamp,
-              'ID Number': value['ID Number'] || 'Unknown',
-              'Hardhat': value['hardhat'] || 0,
-              'Vest': value['vest'] || 0,
-              'Gloves': value['gloves'] || 0,
-              'Entry-Exit': Math.random() > 0.5 ? "Entry" : "Exit" // Still simulated for now
-            }));
+            .map(([timestamp, value]: [string, any]) => {
+              // Determine entry/exit based on front/back values
+              let entryExit = 'Unknown';
+              if (value['front'] === 1) {
+                entryExit = 'Entry';
+              } else if (value['back'] === 1) {
+                entryExit = 'Exit';
+              }
+
+              return {
+                id: timestamp,
+                timestamp: timestamp,
+                'ID Number': value['ID Number'] || 'Unknown',
+                'Hardhat': value['hardhat'] || 0,
+                'Vest': value['vest'] || 0,
+                'Gloves': value['gloves'] || 0,
+                'Entry-Exit': entryExit
+              };
+            });
 
           console.log("Processed entries:", entries);
 
@@ -521,7 +531,9 @@ const DashboardView: React.FC = () => {
                             <span className={`inline-flex px-2 py-1 text-xs font-semibold rounded-full ${
                               entry['Entry-Exit'] === 'Entry' 
                                 ? 'bg-green-100 text-green-800' 
-                                : 'bg-blue-100 text-blue-800'
+                                : entry['Entry-Exit'] === 'Exit'
+                                ? 'bg-blue-100 text-blue-800'
+                                : 'bg-gray-100 text-gray-800'
                             }`}>
                               {entry['Entry-Exit'] || 'Unknown'}
                             </span>
