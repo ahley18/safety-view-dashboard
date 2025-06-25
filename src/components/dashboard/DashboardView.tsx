@@ -256,7 +256,7 @@ const DashboardView: React.FC = () => {
   const downloadData = () => {
     try {
       // Prepare CSV headers
-      const headers = ['Timestamp', 'ID Number', 'Hardhat', 'Vest', 'Gloves', 'Entry-Exit'];
+      const headers = ['Timestamp', 'ID Number', 'Hardhat', 'Vest', 'Gloves'];
       
       // Prepare CSV rows
       const csvRows = [
@@ -266,8 +266,7 @@ const DashboardView: React.FC = () => {
           `"${entry['ID Number']}"`,
           entry['Hardhat'] === 1 ? 'Yes' : 'No',
           entry['Vest'] === 1 ? 'Yes' : 'No',
-          entry['Gloves'] === 1 ? 'Yes' : 'No',
-          `"${entry['Entry-Exit'] || 'Unknown'}"`
+          entry['Gloves'] === 1 ? 'Yes' : 'No'
         ].join(','))
       ];
 
@@ -505,9 +504,6 @@ const DashboardView: React.FC = () => {
                           ID Number
                         </th>
                         <th scope="col" className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                          Entry/Exit
-                        </th>
-                        <th scope="col" className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
                           Hardhat
                         </th>
                         <th scope="col" className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
@@ -526,17 +522,6 @@ const DashboardView: React.FC = () => {
                           </td>
                           <td className="px-6 py-4 whitespace-nowrap">
                             <div className="font-medium text-gray-900">{entry['ID Number']}</div>
-                          </td>
-                          <td className="px-6 py-4 whitespace-nowrap">
-                            <span className={`inline-flex px-2 py-1 text-xs font-semibold rounded-full ${
-                              entry['Entry-Exit'] === 'Entry' 
-                                ? 'bg-green-100 text-green-800' 
-                                : entry['Entry-Exit'] === 'Exit'
-                                ? 'bg-blue-100 text-blue-800'
-                                : 'bg-gray-100 text-gray-800'
-                            }`}>
-                              {entry['Entry-Exit'] || 'Unknown'}
-                            </span>
                           </td>
                           <td className="px-6 py-4 whitespace-nowrap text-center">
                             {entry['Hardhat'] === 1 ? (
