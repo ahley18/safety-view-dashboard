@@ -32,7 +32,6 @@ interface DWSEntry {
 
 const DashboardView: React.FC = () => {
   const [searchTerm, setSearchTerm] = useState('');
-  const [filterAction, setFilterAction] = useState<'all' | 'entry' | 'exit'>('all');
   const [dwsData, setDwsData] = useState<DWSEntry[]>([]);
   const [loading, setLoading] = useState<boolean>(true);
   const [error, setError] = useState<string | null>(null);
@@ -132,12 +131,9 @@ const DashboardView: React.FC = () => {
     };
   }, [database]);
 
-  // Filter data based on search term and filter action
+  // Filter data based on search term only
   const filteredData = dwsData.filter(record => {
-    const matchesSearch = record['ID Number']?.toLowerCase().includes(searchTerm.toLowerCase());
-    if (filterAction === 'all') return matchesSearch;
-    if (filterAction === 'entry') return matchesSearch && record['Entry-Exit'] === "Entry";
-    return matchesSearch && record['Entry-Exit'] === "Exit";
+    return record['ID Number']?.toLowerCase().includes(searchTerm.toLowerCase());
   });
 
   // Format timestamp to readable date and time
@@ -180,15 +176,11 @@ const DashboardView: React.FC = () => {
           entry.Hardhat === 1 && entry.Vest === 1 && entry.Gloves === 1
         );
         const complianceRate = entries.length > 0 ? Math.round((compliantEntries.length / entries.length) * 100) : 0;
-        
-        const entryCount = entries.filter(entry => entry['Entry-Exit'] === 'Entry').length;
-        const exitCount = entries.filter(entry => entry['Entry-Exit'] === 'Exit').length;
 
         return {
           day: new Date(date).toLocaleDateString('en', { weekday: 'short' }),
           compliance: complianceRate,
-          entries: entryCount,
-          exits: exitCount
+          total: entries.length
         };
       });
   };
@@ -196,8 +188,7 @@ const DashboardView: React.FC = () => {
   const chartData = generateRealChartData();
   const chartConfig = {
     compliance: { label: "Compliance %", color: "#10b981" },
-    entries: { label: "Entries", color: "#3b82f6" },
-    exits: { label: "Exits", color: "#8b5cf6" }
+    total: { label: "Total Records", color: "#3b82f6" }
   };
 
   // Get non-compliant records
@@ -256,7 +247,7 @@ const DashboardView: React.FC = () => {
   const downloadData = () => {
     try {
       // Prepare CSV headers
-      const headers = ['Timestamp', 'ID Number', 'Hardhat', 'Vest', 'Gloves', 'Entry-Exit'];
+      const headers = ['Timestamp', 'ID Number', 'Hardhat', 'Vest', 'Gloves'];
       
       // Prepare CSV rows
       const csvRows = [
@@ -266,8 +257,7 @@ const DashboardView: React.FC = () => {
           `"${entry['ID Number']}"`,
           entry['Hardhat'] === 1 ? 'Yes' : 'No',
           entry['Vest'] === 1 ? 'Yes' : 'No',
-          entry['Gloves'] === 1 ? 'Yes' : 'No',
-          `"${entry['Entry-Exit'] || 'Unknown'}"`
+          entry['Gloves'] === 1 ? 'Yes' : 'No'
         ].join(','))
       ];
 
@@ -448,16 +438,6 @@ const DashboardView: React.FC = () => {
               className="pl-10 pr-4 py-2 border rounded-lg focus:ring-2 focus:ring-primary/30 focus:border-primary outline-none w-full md:w-64 bg-slate-950" 
             />
           </div>
-          
-          <select 
-            value={filterAction} 
-            onChange={e => setFilterAction(e.target.value as 'all' | 'entry' | 'exit')} 
-            className="border rounded-lg px-4 py-2 focus:ring-2 focus:ring-primary/30 focus:border-primary outline-none bg-slate-950"
-          >
-            <option value="all">All Records</option>
-            <option value="entry">Entries Only</option>
-            <option value="exit">Exits Only</option>
-          </select>
 
           <button
             onClick={downloadData}
@@ -505,9 +485,6 @@ const DashboardView: React.FC = () => {
                           ID Number
                         </th>
                         <th scope="col" className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                          Entry/Exit
-                        </th>
-                        <th scope="col" className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
                           Hardhat
                         </th>
                         <th scope="col" className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
@@ -526,17 +503,6 @@ const DashboardView: React.FC = () => {
                           </td>
                           <td className="px-6 py-4 whitespace-nowrap">
                             <div className="font-medium text-gray-900">{entry['ID Number']}</div>
-                          </td>
-                          <td className="px-6 py-4 whitespace-nowrap">
-                            <span className={`inline-flex px-2 py-1 text-xs font-semibold rounded-full ${
-                              entry['Entry-Exit'] === 'Entry' 
-                                ? 'bg-green-100 text-green-800' 
-                                : entry['Entry-Exit'] === 'Exit'
-                                ? 'bg-blue-100 text-blue-800'
-                                : 'bg-gray-100 text-gray-800'
-                            }`}>
-                              {entry['Entry-Exit'] || 'Unknown'}
-                            </span>
                           </td>
                           <td className="px-6 py-4 whitespace-nowrap text-center">
                             {entry['Hardhat'] === 1 ? (
@@ -566,7 +532,7 @@ const DashboardView: React.FC = () => {
                 </div>
               ) : (
                 <div className="text-center py-8 text-gray-500">
-                  No records found. Try adjusting your search or filters.
+                  No records found. Try adjusting your search.
                 </div>
               )}
             </div>
@@ -576,42 +542,16 @@ const DashboardView: React.FC = () => {
           <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
             <Card>
               <CardHeader>
-                <CardTitle>Entries vs Exits</CardTitle>
+                <CardTitle>Total Records</CardTitle>
               </CardHeader>
               <CardContent>
                 <div className="space-y-4">
                   <div>
                     <div className="flex justify-between mb-1">
-                      <span>Entries</span>
-                      <span className="font-medium">
-                        {dwsData.filter(entry => entry['Entry-Exit'] === "Entry").length}
+                      <span>Total Entries</span>
+                      <span className="font-medium text-2xl">
+                        {dwsData.length}
                       </span>
-                    </div>
-                    <div className="w-full bg-gray-200 rounded-full h-2.5">
-                      <div 
-                        className="bg-blue-500 h-2.5 rounded-full" 
-                        style={{
-                          width: `${dwsData.length > 0 ? 
-                            (dwsData.filter(entry => entry['Entry-Exit'] === "Entry").length / dwsData.length) * 100 : 0}%`
-                        }}
-                      ></div>
-                    </div>
-                  </div>
-                  <div>
-                    <div className="flex justify-between mb-1">
-                      <span>Exits</span>
-                      <span className="font-medium">
-                        {dwsData.filter(entry => entry['Entry-Exit'] === "Exit").length}
-                      </span>
-                    </div>
-                    <div className="w-full bg-gray-200 rounded-full h-2.5">
-                      <div 
-                        className="bg-purple-500 h-2.5 rounded-full" 
-                        style={{
-                          width: `${dwsData.length > 0 ? 
-                            (dwsData.filter(entry => entry['Entry-Exit'] === "Exit").length / dwsData.length) * 100 : 0}%`
-                        }}
-                      ></div>
                     </div>
                   </div>
                 </div>
@@ -729,7 +669,7 @@ const DashboardView: React.FC = () => {
 
             <Card>
               <CardHeader>
-                <CardTitle>Entries vs Exits Over Time</CardTitle>
+                <CardTitle>Daily Record Count</CardTitle>
               </CardHeader>
               <CardContent>
                 {chartData.length > 0 ? (
@@ -740,8 +680,7 @@ const DashboardView: React.FC = () => {
                         <XAxis dataKey="day" />
                         <YAxis />
                         <ChartTooltip content={<ChartTooltipContent />} />
-                        <Bar dataKey="entries" fill="var(--color-entries)" />
-                        <Bar dataKey="exits" fill="var(--color-exits)" />
+                        <Bar dataKey="total" fill="var(--color-total)" />
                       </BarChart>
                     </ResponsiveContainer>
                   </ChartContainer>
