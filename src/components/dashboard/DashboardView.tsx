@@ -8,6 +8,7 @@ import { ChartContainer, ChartTooltip, ChartTooltipContent } from '@/components/
 import { LineChart, Line, BarChart, Bar, XAxis, YAxis, CartesianGrid, ResponsiveContainer, PieChart, Pie, Cell, AreaChart, Area } from 'recharts';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import ReprimandSystem from './ReprimandSystem';
+import EmailSettings from './EmailSettings';
 
 // Firebase configuration
 const firebaseConfig = {
@@ -458,9 +459,10 @@ const DashboardView: React.FC = () => {
       )}
       
       <Tabs defaultValue="monitoring" className="w-full">
-        <TabsList className="grid w-full grid-cols-2">
+        <TabsList className="grid w-full grid-cols-3">
           <TabsTrigger value="monitoring">PPE Monitoring</TabsTrigger>
           <TabsTrigger value="reprimands">Reprimand System</TabsTrigger>
+          <TabsTrigger value="email-settings">Email Settings</TabsTrigger>
         </TabsList>
         
         <TabsContent value="monitoring" className="space-y-6">
@@ -930,6 +932,10 @@ const DashboardView: React.FC = () => {
         
         <TabsContent value="reprimands" className="space-y-6">
           <ReprimandSystem nonCompliantRecords={nonCompliantRecords} />
+        </TabsContent>
+        
+        <TabsContent value="email-settings" className="space-y-6">
+          <EmailSettings />
         </TabsContent>
       </Tabs>
     </div>
