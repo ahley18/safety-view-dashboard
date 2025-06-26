@@ -166,7 +166,7 @@ const Landing: React.FC = () => {
               <div>
                 <h4 className="text-lg font-semibold mb-4 text-foreground">Contact</h4>
                 <ul className="space-y-2">
-                  <li className="text-muted-foreground">info@ppemonitor.com</li>
+                  <li className="text-muted-foreground">cla.fetalino@gmail.com</li>
                   <li className="text-muted-foreground">+639685241615</li>
                 </ul>
               </div>
